@@ -14,11 +14,13 @@ async function openDatabase() {
         );
     }
     const db = await SQLite.openDatabaseAsync('finDatabase.db');
-    db._db.exec(
+    console.log('Database opened:', db);
+    db.current.runAsync(
         [{ sql: 'PRAGMA foreign_keys = ON;', args: [] }],
         false,
-        () => {},
+        () => { },
     );
+    console.log('Foreign keys enabled');
     return db;
 }
 
@@ -56,44 +58,30 @@ export const FinProvider = ({ children }) => {
     const restoreBackup = async (uri) => {
         // @ts-ignore
         db.current._db.close();
-        restoreBackup
         await FileSystem.moveAsync({
             from: uri,
             to: FileSystem.documentDirectory + 'SQLite/finDatabase.db'
         });
         db.current = await SQLite.openDatabaseAsync('finDatabase.db');
-        db.current._db.exec(
-            [{ sql: 'PRAGMA foreign_keys = ON;', args: [] }],
-            false,
-            () => {},
-        );
+        await db.current.execAsync('PRAGMA foreign_keys = ON;');
         await refresh();
     }
 
-    const createEntity = (name, entity) => {
-        return new Promise((resolve, reject) => {
-            // create sql statement
-            let columns = '', qms = '', values = [];
-            for (const [key, value] of Object.entries(entity)) {
-                columns += `${key},`;
-                qms += '?,'
-                values.push(value)
-            }
-            columns = columns.slice(0, -1);
-            qms = qms.slice(0, -1);
-            const sql = `INSERT INTO ${name} (${columns}) VALUES (${qms})`
-            // execute sql
-            db.current.transaction(tx => {
-                tx.executeSql(sql, values,
-                    (txObj, resultSet) => {
-                        return resolve(resultSet.insertId)
-                    },
-                    (txObj, error) => {
-                        return reject(error)
-                    }
-                )
-            });
-        })
+    const createEntity = async (name, entity) => {
+        // create sql statement
+        let columns = '', qms = '', values = [];
+        for (const [key, value] of Object.entries(entity)) {
+            columns += `${key},`;
+            qms += '?,'
+            values.push(value)
+        }
+        columns = columns.slice(0, -1);
+        qms = qms.slice(0, -1);
+        const sql = `INSERT INTO ${name} (${columns}) VALUES (${qms})`
+        db.current.runAsync(sql, values)
+        const res = await db.current.executeSql(sql, values)
+        return res.insertId;
+
     }
 
     const deleteEntity = async (name, id) => {
@@ -163,27 +151,16 @@ export const FinProvider = ({ children }) => {
     }
 
     const updateTransaction = async (transaction) => {
-        await new Promise((resolve, reject) => {
-            const sql = `UPDATE finTransaction SET 
+        const sql = `UPDATE finTransaction SET 
                     name = '${transaction.name}'
                     ,value = ${transaction.value}
                     ,details = '${transaction.details}'
                     ,date = '${transaction.date.toISOString()}'
                     ,categoryId = ${transaction.categoryId}
                 WHERE id = ${transaction.id}`
-            // execute sql
-            db.current.transaction(tx => {
-                tx.executeSql(sql, null,
-                    (txObj, resultSet) => {
-                        return resolve()
-                    },
-                    (txObj, error) => {
-                        return reject(error)
-                    }
-                )
-            });
-        })
-        refresh();
+        // execute sql
+        const res = await db.current.execAsync(sql)
+        await refresh();
     }
 
     const deleteTransaction = async (id) => {
@@ -192,8 +169,8 @@ export const FinProvider = ({ children }) => {
     }
 
     const fetchCategories = async (date) => {
-        await new Promise((resolve, reject) => {
-            const getCategoriesSQL = `
+        console.log('Fetching categories with date:', date);
+        const getCategoriesSQL = `
             SELECT pc.*
             ,(SELECT SUM(value)
                 FROM finTransaction
@@ -219,56 +196,34 @@ export const FinProvider = ({ children }) => {
                 SELECT NULL id, 'Total', 0, null
                 ,(SELECT SUM(value) FROM finTransaction ${date ? 'WHERE date <= \'' + date + '\'' : ''})
             ORDER BY listIndex`;
-            // execute sql
-            db.current.transaction(tx => {
-                tx.executeSql(getCategoriesSQL, null,
-                    (txObj, { rows: { _array } }) => {
-                        const fetchedCategories = _array.map(c => {
-                            return {
-                                id: c.id,
-                                name: c.name,
-                                index: c.listIndex,
-                                parentId: c.parentId,
-                                value: formatValue(c.value),
-                            }
-                        })
-                        setCategories(fetchedCategories);
-                        resolve();
-                    },
-                    (txObj, error) => {
-                        return reject(error)
-                    }
-                )
-            });
+        const rows = await db.current.getAllAsync(getCategoriesSQL);
+        const fetchedCategories = rows.map(c => {
+            return {
+                id: c.id,
+                name: c.name,
+                index: c.listIndex,
+                parentId: c.parentId,
+                value: formatValue(c.value),
+            }
         })
+        console.log('Fetched categories:', fetchedCategories[0]);
+        setCategories(fetchedCategories);
     }
 
     const fetchTransactions = async () => {
-        await new Promise((resolve, reject) => {
-            const getTransactionsSQL = `SELECT * FROM FinTransaction ORDER BY date desc`;
-            // execute sql
-            db.current.transaction(tx => {
-                tx.executeSql(getTransactionsSQL, null,
-                    (txObj, { rows: { _array } }) => {
-                        const fetchedTransactions = _array.map(t => {
-                            return {
-                                id: t.id,
-                                name: t.name,
-                                value: formatValue(t.value),
-                                details: t.details,
-                                date: new Date(t.date),
-                                categoryId: t.categoryId
-                            }
-                        })
-                        setTransactions(fetchedTransactions);
-                        resolve();
-                    },
-                    (txObj, error) => {
-                        return reject(error)
-                    }
-                )
-            });
+        const getTransactionsSQL = `SELECT * FROM FinTransaction ORDER BY date desc`;
+        const rows = await db.current.getAllAsync(getTransactionsSQL);
+        const fetchedTransactions = rows.map(t => {
+            return {
+                id: t.id,
+                name: t.name,
+                value: formatValue(t.value),
+                details: t.details,
+                date: new Date(t.date),
+                categoryId: t.categoryId
+            }
         })
+        setTransactions(fetchedTransactions);
     }
 
     const refresh = async (date = null) => {
