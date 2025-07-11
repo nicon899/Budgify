@@ -1,10 +1,15 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { finContext } from '../contexts/FinContext';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useContext, useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { finContext } from '../../../contexts/FinContext';
 
-const CreateCategoryScreen = props => {
+const CreateCategoryScreen = () => {
+    const { categoryId: categoryIdParam, index: indexParam } = useLocalSearchParams();
+    const categoryId = categoryIdParam === 'null' ? null : parseInt(categoryIdParam);
+    const index = indexParam ? parseInt(indexParam) : 999999999;
     const [name, setName] = useState('');
     const context = useContext(finContext);
+    const router = useRouter();
 
     return (
         <View style={styles.screen}>
@@ -23,7 +28,7 @@ const CreateCategoryScreen = props => {
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'red' }]}
                     onPress={() => {
-                        props.navigation.goBack();
+                            router.dismiss();
                     }}
                 >
                     <Text style={{ color: 'red' }}>Cancel</Text>
@@ -31,14 +36,14 @@ const CreateCategoryScreen = props => {
 
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'green' }]}
-                    onPress={() => {
+                    onPress={async () => {
                         const category = {
                             name: name,
-                            index: props.route.params.index,
-                            parentId: props.route.params.categoryId
+                            index: index,
+                            parentId: categoryId
                         }
-                        context.actions.addCategory(category);
-                        props.navigation.goBack();
+                        await context.actions.addCategory(category);
+                        router.dismiss();
                     }}
                 >
                     <Text style={{ color: 'green' }}>ADD</Text>

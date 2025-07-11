@@ -14,9 +14,7 @@ async function openDatabase() {
         );
     }
     const db = await SQLite.openDatabaseAsync('finDatabase.db');
-    console.log('Database opened:', db);
     await db.execAsync('PRAGMA foreign_keys = ON;');
-    console.log('Foreign keys enabled');
     return db;
 }
 
@@ -44,10 +42,8 @@ export const FinProvider = ({ children }) => {
     const db = useRef();
 
     useEffect(() => {
-        console.log('FinProvider useEffect');
         (async () => {
             db.current = await openDatabase();
-            console.log('Database initialized:', db.current);
             await refresh();
             setIsLoading(false);
         })();
@@ -76,28 +72,14 @@ export const FinProvider = ({ children }) => {
         columns = columns.slice(0, -1);
         qms = qms.slice(0, -1);
         const sql = `INSERT INTO ${name} (${columns}) VALUES (${qms})`
-        const res = db.current.runAsync(sql, values)
-        // const res = await db.current.executeSql(sql, values)
-        console.log('Entity created:', name, res);
+        const res = await db.current.runAsync(sql, values)
         return res.insertId;
 
     }
 
     const deleteEntity = async (name, id) => {
-        await new Promise((resolve, reject) => {
-            const sql = `DELETE FROM ${name} WHERE id = ${id}`
-            // execute sql
-            db.current.transaction(tx => {
-                tx.executeSql(sql, null,
-                    (txObj, resultSet) => {
-                        return resolve()
-                    },
-                    (txObj, error) => {
-                        return reject(error)
-                    }
-                )
-            });
-        })
+        const sql = `DELETE FROM ${name} WHERE id = ${id}`
+        await db.current.execAsync(sql);
     }
 
     const addCategory = async (category) => {
@@ -111,30 +93,19 @@ export const FinProvider = ({ children }) => {
     }
 
     const updateCategory = async (category) => {
-        await new Promise((resolve, reject) => {
-            const sql = `UPDATE category SET 
+        const sql = `UPDATE category SET 
                     name = '${category.name}'
                     ,listIndex = ${category.index}
                     ,parentId = ${category.parentId}
                 WHERE id = ${category.id}`
-            // execute sql
-            db.current.transaction(tx => {
-                tx.executeSql(sql, null,
-                    (txObj, resultSet) => {
-                        return resolve()
-                    },
-                    (txObj, error) => {
-                        return reject(error)
-                    }
-                )
-            });
-        })
-        refresh();
+        // execute sql
+        await db.current.execAsync(sql)
+        await refresh();
     }
 
     const deleteCategory = async (id) => {
         await deleteEntity('category', id);
-        refresh();
+        await refresh();
     }
 
     const addTransaction = async (transaction) => {
@@ -164,11 +135,10 @@ export const FinProvider = ({ children }) => {
 
     const deleteTransaction = async (id) => {
         await deleteEntity('finTransaction', id);
-        refresh();
+        await refresh();
     }
 
     const fetchCategories = async (date) => {
-        console.log('Fetching categories with date:', date);
         const getCategoriesSQL = `
             SELECT pc.*
             ,(SELECT SUM(value)
@@ -205,7 +175,6 @@ export const FinProvider = ({ children }) => {
                 value: formatValue(c.value),
             }
         })
-        console.log('Fetched categories:', fetchedCategories[0]);
         setCategories(fetchedCategories);
     }
 
@@ -226,7 +195,6 @@ export const FinProvider = ({ children }) => {
     }
 
     const refresh = async (date = null) => {
-        console.log('Refreshing data with date:', date);
         await fetchCategories(date);
         await fetchTransactions();
     }

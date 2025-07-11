@@ -29,9 +29,9 @@ const BookingScreen = () => {
                             'This Booking will be removed for good!',
                             [{ text: 'Cancel', style: 'cancel' },
                             {
-                                text: 'OK', onPress: () => {
-                                    // props.navigation.goBack();
-                                    actions.deleteTransaction(id)
+                                text: 'OK', onPress: async () => {
+                                    await actions.deleteTransaction(id)
+                                    router.dismiss();
                                 }
                             },
                             ], { cancelable: true }

@@ -12,7 +12,6 @@ export default function FinanceStackNavigator() {
     });
 
     const context = useContext(finContext);
-    console.log('FinanceStackNavigator context:', context.isLoading);
     if (context.isLoading || !fontsLoaded) {
         return (
             <View style={styles.screen}>
@@ -26,7 +25,9 @@ export default function FinanceStackNavigator() {
             <Stack.Screen name="index" options={{ title: 'Home', headerShown: false, }} />
             <Stack.Screen name="[categoryId]/booking/create" options={{ title: 'Create Booking' }} />
             <Stack.Screen name="[categoryId]/booking/[bookingId]" options={{ title: 'Booking Details', headerShown: false }} />
-            <Stack.Screen name="[categoryId]/booking/[bookingId]/edit" options={{ title: 'Edit Category' }} />
+            <Stack.Screen name="[categoryId]/booking/[bookingId]/edit" options={{ title: 'Edit Booking', headerShown: false }} />
+            <Stack.Screen name="category/[categoryId]/create" options={{ title: 'Create Category', headerShown: false }} />
+            <Stack.Screen name="category/[categoryId]" options={{ title: 'Edit Category', headerShown: false }} />
             {/* <Stack.Screen name="Settings" options={{ title: 'Settings' }} /> */}
             <Stack.Screen name="+not-found" />
         </Stack>

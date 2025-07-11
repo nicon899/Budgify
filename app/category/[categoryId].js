@@ -1,50 +1,56 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList from "react-native-draggable-flatlist";
-import CategoryPicker from '../components/CategoryPicker';
-import { finContext } from '../contexts/FinContext';
+import CategoryPicker from '../../components/CategoryPicker';
+import { finContext } from '../../contexts/FinContext';
 
-const EditCategory = props => {
+const EditCategory = () => {
+    const { categoryId: categoryIdParam } = useLocalSearchParams();
+    const categoryId = categoryIdParam === 'null' ? null : parseInt(categoryIdParam);
     const { categories, transactions, actions } = useContext(finContext);
     const [childCategories, setChildCategories] = useState([]);
     const [isOrderChanged, setIsOrderChanged] = useState(false);
-    const [name, setName] = useState(props.route.params.name);
+    const [name, setName] = useState('');
     const { updateCategory, deleteCategory } = useContext(finContext).actions
     const [categoryParentId, setCategoryParentId] = useState();
+    const router = useRouter();
 
     useEffect(() => {
-        const categoryToUpdate = categories.find(c => c.id === props.route.params.categoryId);
+        const categoryToUpdate = categories.find(c => c.id === categoryId);
         if (!categoryToUpdate) return;
-        setChildCategories(categories.filter((category) => category.id !== null && category.parentId === props.route.params.categoryId).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0));
+        setChildCategories(categories.filter((category) => category.id !== null && category.parentId === categoryId).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0));
         setCategoryParentId(categoryToUpdate.parentId)
+        setName(categoryToUpdate.name);
     }, [categories]);
 
-    const updateIndexes = () => {
+    const updateIndexes = async () => {
         let index = 0;
         childCategories.forEach(cat => {
             cat.index = index;
-            updateCategory(cat)
             index++;
         });
+        childCategories.forEach(async (cat) => {
+            await updateCategory(cat);
+        })
     };
 
-    const update = () => {
-        const updatedCategory = categories.find(c => c.id === props.route.params.categoryId);
+    const update = async () => {
+        const updatedCategory = categories.find(c => c.id === categoryId);
         updatedCategory.name = name;
         updatedCategory.parentId = categoryParentId;
-        updateCategory(updatedCategory);
+        await updateCategory(updatedCategory);
     };
 
     const scaleFontSize = (fontSize) => {
         return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
     }
 
-
     return (
         <View style={styles.screen}>
-            <View style={{ width: '100%', height: '90%', }}>
-                {props.route.params.categoryId !== null && <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: '100%', height: '90%' }}>
+                {categoryId !== null && <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.nameInputContainer}>
                         <TextInput
                             placeholder='Name'
@@ -65,15 +71,9 @@ const EditCategory = props => {
                                 [
                                     { text: 'Cancel', style: 'cancel' },
                                     {
-                                        text: 'OK', onPress: () => {
-                                            deleteCategory(props.route.params.categoryId)
-                                            props.navigation.reset({
-                                                index: 0,
-                                                routes: [{
-                                                    name: 'Category'
-                                                },
-                                                ],
-                                            })
+                                        text: 'OK', onPress: async () => {
+                                            await deleteCategory(categoryId)
+                                            router.replace(`?categoryId=${categoryParentId}`);
                                         }
                                     },
                                 ],
@@ -87,54 +87,61 @@ const EditCategory = props => {
                 }
                 <View style={{
                     width: '100%',
-                    height: props.route.params.categoryId === null ? '100%' : '90%',
+                    height: categoryId === null ? '100%' : '90%',
                 }}>
                     <View style={styles.bookingsheader}>
                         <Text style={{ color: 'white', fontSize: scaleFontSize(32), fontWeight: 'bold' }}>Categories:</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                props.navigation.navigate('CreateCategory', { categoryId: props.route.params.categoryId, index: childCategories.length })
+                                router.navigate(`/category/${categoryId}/create?index=${childCategories.length}`);
                             }}
                         >
                             <MaterialIcons style={{ marginRight: '10%' }} name="library-add" size={28} color="#00FF00" />
                         </TouchableOpacity>
                     </View>
 
-                    {props.route.params.categoryId !== -1 && <CategoryPicker categoryId={categoryParentId} setCategoryId={setCategoryParentId} noFilter={true} />}
-                    <DraggableFlatList
-                        data={childCategories}
-                        onDragBegin={() => setIsOrderChanged(true)}
-                        keyExtractor={(item, index) => `${item.id}`}
-                        renderItem={({ item, index, drag, isActive }) =>
-                        (<TouchableOpacity
-                            style={{
-                                height: 50,
-                                backgroundColor: isActive ? "blue" : item.backgroundColor,
-                                alignItems: "center",
-                                justifyContent: "center"
-                            }}
-                            onLongPress={drag}
-                        >
-                            <Text
+                    {categoryId !== -1 && <CategoryPicker categoryId={categoryParentId} setCategoryId={setCategoryParentId} noFilter={true} />}
+                    <View style={{ flex: 1, width: '100%' }}>
+                        <DraggableFlatList
+                            data={childCategories}
+                            style={{ backgroundColor: '#202020', marginHorizontal: 25, borderRadius: 10, padding: 5 }}
+                            onDragBegin={() => setIsOrderChanged(true)}
+                            keyExtractor={(item, index) => `${item.id}`}
+                            renderItem={({ item, index, drag, isActive }) =>
+                            (<TouchableOpacity
                                 style={{
-                                    fontWeight: "bold",
-                                    color: "white",
-                                    fontSize: 32
+                                    backgroundColor: isActive ? "#0000FF80" : '#303030',
+                                    marginHorizontal: 10,
+                                    marginVertical: 3,
+                                    padding: 5,
+                                    justifyContent: "center",
+                                    borderRadius: 5,
+                                    borderColor: 'white',
+                                    borderWidth: 1
                                 }}
+                                onLongPress={drag}
                             >
-                                {item.name}
-                            </Text>
-                        </TouchableOpacity>)
-                        }
-                        onDragEnd={(data) => setChildCategories(data.data)}
-                    />
+                                <Text
+                                    style={{
+                                        fontWeight: "bold",
+                                        color: "white",
+                                        fontSize: 18
+                                    }}
+                                >
+                                    {item.name}
+                                </Text>
+                            </TouchableOpacity>)
+                            }
+                            onDragEnd={(data) => setChildCategories(data.data)}
+                        />
+                    </View>
                 </View>
             </View>
-            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around', alignSelf: 'flex-end' }}>
+            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10 }}>
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'red' }]}
                     onPress={() => {
-                        props.navigation.goBack();
+                        router.dismiss();
                     }}
                 >
                     <Text style={{ color: 'red' }}>Cancel</Text>
@@ -142,12 +149,12 @@ const EditCategory = props => {
 
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'green' }]}
-                    onPress={() => {
-                        update();
+                    onPress={async () => {
+                        await update();
                         if (isOrderChanged) {
-                            updateIndexes();
+                            await updateIndexes();
                         }
-                        props.navigation.navigate('Category', { name: name });
+                        router.dismiss();
                     }}
                 >
                     <Text style={{ color: 'green' }}>Save</Text>

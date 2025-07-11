@@ -83,7 +83,7 @@ const Booking = props => {
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'red' }]}
                     onPress={() => {
-                        props.navigation.goBack();
+                        router.dismiss();
                     }}
                 >
                     <Text style={{ color: 'red' }}>Cancel</Text>

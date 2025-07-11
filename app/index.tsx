@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
 import { BackHandler, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -8,9 +8,11 @@ import DatePicker from '../components/DatePicker';
 import { finContext } from '../contexts/FinContext';
 
 const CategoryScreen = () => {
+    const { categoryId: categoryIdParamStr } = useLocalSearchParams();
+    const categoryIdParam = categoryIdParamStr ? parseInt(categoryIdParamStr as string, 10) : null;
     const context = useContext(finContext);
     const [date, _setDate] = useState(new Date());
-    const [selectedCategory, setSelectedCategory] = useState(context.categories[0]);
+    const [selectedCategory, setSelectedCategory] = useState(categoryIdParam ? context.categories.find(c => c.id === categoryIdParam) : context.categories[0]);
     const childCategories = selectedCategory ? context.categories.filter((category) => category.id !== null && category.parentId === selectedCategory.id) : [];
     const router = useRouter();
 
@@ -21,7 +23,12 @@ const CategoryScreen = () => {
 
 
     useEffect(() => {
-        setSelectedCategory(context.categories.find(c => c.id === selectedCategory.id))
+        if (selectedCategory) {
+            setSelectedCategory(context.categories.find(c => c.id === selectedCategory.id))
+        } else if (context.categories.length > 0) {
+            console.log(categoryIdParam)
+            setSelectedCategory(categoryIdParam ? context.categories.find(c => c.id === categoryIdParam) : context.categories[0]);
+        }
     }, [context.categories])
 
     useEffect(() => {
@@ -61,6 +68,16 @@ const CategoryScreen = () => {
         };
     }, [selectedCategory]);
 
+    if (!selectedCategory) {
+        return (
+            <SafeAreaView style={styles.screen}>
+                <View style={styles.header}>
+                    <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>No Category Selected</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.topBar}>
@@ -89,7 +106,7 @@ const CategoryScreen = () => {
                     </View>
                 </View>
                 <TouchableOpacity
-                    onPress={() => props.navigation.navigate('Settings')}>
+                    onPress={() => router.navigate(`/settings`)}>
                     <MaterialCommunityIcons name="cog-outline" size={scaleFontSize(28)} color="white" />
                 </TouchableOpacity>
             </View>
@@ -98,7 +115,7 @@ const CategoryScreen = () => {
                 <TouchableOpacity
                     style={styles.headerCat}
                     onPress={() => {
-                        props.navigation.navigate('EditCategory', { categoryId: selectedCategory.id, name: selectedCategory.name })
+                        router.navigate(`/category/${selectedCategory.id}`);
                     }}
                 >
                     <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>{selectedCategory.name}</Text>
