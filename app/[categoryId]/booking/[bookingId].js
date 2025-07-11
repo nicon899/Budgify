@@ -2,10 +2,10 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext } from 'react';
 import { Alert, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { finContext } from '../../contexts/FinContext';
+import { finContext } from '../../../contexts/FinContext';
 
 const BookingScreen = () => {
-    const { bookingId } = useLocalSearchParams();
+    const { bookingId, categoryId } = useLocalSearchParams();
     const id = bookingId ? parseInt(bookingId, 10) : null; // Ensure id is a number
     const { transactions, actions } = useContext(finContext);
     const booking = transactions.find((booking) => booking.id === id);
@@ -47,7 +47,7 @@ const BookingScreen = () => {
                     style={{ maxWidth: '15%' }}
 
                     onPress={() => {
-                        router.navigate(`/booking/${id}/edit`);
+                        router.navigate(`${categoryId}/booking/${id}/edit`);
                     }}
                 >
                     <MaterialCommunityIcons name="lead-pencil" size={scaleFontSize(36)} color="white" />

@@ -111,7 +111,7 @@ const CategoryScreen = () => {
                     style={{ maxHeight: '100%' }}
                     bookings={context.transactions.filter(t => t.categoryId === selectedCategory.id && t.date <= date)}
                     categories={childCategories}
-                    showBooking={(id) => router.navigate(`/booking/${id}`)}
+                    showBooking={(id) => router.navigate(`${selectedCategory.id}/booking/${id}`)}
                     showCategory={(id) => setSelectedCategory(context.categories.find((category) => category.id === id))}
                     showBookings={selectedCategory.id !== null}
                 />
@@ -121,9 +121,7 @@ const CategoryScreen = () => {
                 {selectedCategory.id !== null && <TouchableOpacity
                     style={[styles.transButton, { borderColor: '#00FF00', backgroundColor: '#00FF00' }]}
                     onPress={() => {
-                        props.navigation.navigate('CreateBooking', {
-                            categoryId: selectedCategory.id, editMode: false, value: 1
-                        });
+                        router.navigate(`${selectedCategory.id}/booking/create?isPositive=true`);
                     }}
                 >
                     <Text style={{ color: 'white' }}>+</Text>
@@ -131,9 +129,7 @@ const CategoryScreen = () => {
                 {selectedCategory.id !== null && <TouchableOpacity
                     style={[styles.transButton, { borderColor: '#FF0000', backgroundColor: '#FF0000' }]}
                     onPress={() => {
-                        props.navigation.navigate('CreateBooking', {
-                            categoryId: selectedCategory.id, editMode: false, value: -1
-                        });
+                        router.navigate(`${selectedCategory.id}/booking/create?isPositive=false`);
                     }}
                 >
                     <Text style={{ color: 'white' }}>-</Text>

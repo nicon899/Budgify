@@ -6,24 +6,16 @@ import CategoryPicker from '../../../components/CategoryPicker';
 import DatePicker from '../../../components/DatePicker';
 import { finContext } from '../../../contexts/FinContext';
 
-const EditScreen = props => {
-    const { bookingId } = useLocalSearchParams();
-    const id = bookingId ? parseInt(bookingId, 10) : null; // Ensure id is a number
-    const { transactions, actions } = useContext(finContext);
-    const booking = transactions.find((booking) => booking.id === id);
-    const [categoryId, setCategoryId] = useState(booking.categoryId);
-    const [name, setName] = useState(booking.name);
-    const [value, setValue] = useState(Math.abs(booking.value).toString());
-    const [details, setDetails] = useState(booking.details);
-    const [date, setDate] = useState(new Date(booking.date));
-    const [isPositive, setIsPositive] = useState(booking.value > 0 ? true : false);
+const Booking = props => {
+    const { categoryId: categoryIdParam, isPositive: isPositiveParam } = useLocalSearchParams();
+    const [categoryId, setCategoryId] = useState(parseInt(categoryIdParam));
+    const [name, setName] = useState('');
+    const [value, setValue] = useState('');
+    const [details, setDetails] = useState('');
+    const [date, setDate] = useState(new Date());
+    const [isPositive, setIsPositive] = useState(isPositiveParam === 'true');
+    const { addTransaction } = useContext(finContext).actions
     const router = useRouter();
-
-    console.log(booking.value, typeof booking.value);
-
-    if (!booking) {
-        return (<Text>Booking not found!</Text>);
-    }
 
     const scaleFontSize = (fontSize) => {
         return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
@@ -32,7 +24,7 @@ const EditScreen = props => {
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
-                <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: scaleFontSize(42) }}>Edit Booking</Text>
+                <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: scaleFontSize(42) }}>New Booking</Text>
 
                 <CategoryPicker categoryId={categoryId} setCategoryId={setCategoryId} />
 
@@ -91,8 +83,7 @@ const EditScreen = props => {
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'red' }]}
                     onPress={() => {
-                        router.dismiss();
-
+                        props.navigation.goBack();
                     }}
                 >
                     <Text style={{ color: 'red' }}>Cancel</Text>
@@ -102,9 +93,7 @@ const EditScreen = props => {
                     style={[styles.actionButton, { borderColor: 'green' }]}
                     onPress={async () => {
                         if (/^[0-9]+(\.[0-9]{1,2})?$/g.test(value)) {
-
-                            await actions.updateTransaction({
-                                id: id,
+                            await addTransaction({
                                 name: name,
                                 value: isPositive ? value : -1 * value,
                                 details: details,
@@ -167,4 +156,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default EditScreen;
+export default Booking;

@@ -24,9 +24,9 @@ export default function FinanceStackNavigator() {
     return (
         <Stack>
             <Stack.Screen name="index" options={{ title: 'Home', headerShown: false, }} />
-            {/* <Stack.Screen name="CreateBooking" options={{ title: 'Create Booking' }} /> */}
-            <Stack.Screen name="booking/[bookingId]" options={{ title: 'Booking Details', headerShown: false }} />
-            <Stack.Screen name="booking/[bookingId]/edit" options={{ title: 'Edit Category' }} />
+            <Stack.Screen name="[categoryId]/booking/create" options={{ title: 'Create Booking' }} />
+            <Stack.Screen name="[categoryId]/booking/[bookingId]" options={{ title: 'Booking Details', headerShown: false }} />
+            <Stack.Screen name="[categoryId]/booking/[bookingId]/edit" options={{ title: 'Edit Category' }} />
             {/* <Stack.Screen name="Settings" options={{ title: 'Settings' }} /> */}
             <Stack.Screen name="+not-found" />
         </Stack>

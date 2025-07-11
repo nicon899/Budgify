@@ -1,18 +1,27 @@
 import { AntDesign } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { Alert, Dimensions, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import CategoryPicker from '../components/CategoryPicker';
-import DatePicker from '../components/DatePicker';
-import { finContext } from '../contexts/FinContext';
+import CategoryPicker from '../../../../components/CategoryPicker';
+import DatePicker from '../../../../components/DatePicker';
+import { finContext } from '../../../../contexts/FinContext';
 
-const Booking = props => {
-    const [categoryId, setCategoryId] = useState(props.route.params.categoryId);
-    const [name, setName] = useState(props.route.params.editMode ? props.route.params.name : '');
-    const [value, setValue] = useState(props.route.params.editMode ? props.route.params.value > 0 ? props.route.params.value.toString() : (props.route.params.value * -1).toString() : '');
-    const [details, setDetails] = useState(props.route.params.editMode ? props.route.params.details : '');
-    const [date, setDate] = useState(props.route.params.editMode ? new Date(props.route.params.date) : new Date());
-    const [isPositive, setIsPositive] = useState(props.route.params.value > 0);
-    const { addTransaction, updateTransaction } = useContext(finContext).actions
+const EditScreen = props => {
+    const { bookingId } = useLocalSearchParams();
+    const id = bookingId ? parseInt(bookingId, 10) : null; // Ensure id is a number
+    const { transactions, actions } = useContext(finContext);
+    const booking = transactions.find((booking) => booking.id === id);
+    const [categoryId, setCategoryId] = useState(booking.categoryId);
+    const [name, setName] = useState(booking.name);
+    const [value, setValue] = useState(Math.abs(booking.value).toString());
+    const [details, setDetails] = useState(booking.details);
+    const [date, setDate] = useState(new Date(booking.date));
+    const [isPositive, setIsPositive] = useState(booking.value > 0 ? true : false);
+    const router = useRouter();
+
+    if (!booking) {
+        return (<Text>Booking not found!</Text>);
+    }
 
     const scaleFontSize = (fontSize) => {
         return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
@@ -21,7 +30,7 @@ const Booking = props => {
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
-                <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: scaleFontSize(42) }}>{props.route.params.editMode ? 'Edit Booking' : 'New Booking'}</Text>
+                <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: scaleFontSize(42) }}>Edit Booking</Text>
 
                 <CategoryPicker categoryId={categoryId} setCategoryId={setCategoryId} />
 
@@ -80,7 +89,8 @@ const Booking = props => {
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'red' }]}
                     onPress={() => {
-                        props.navigation.goBack();
+                        router.dismiss();
+
                     }}
                 >
                     <Text style={{ color: 'red' }}>Cancel</Text>
@@ -88,25 +98,18 @@ const Booking = props => {
 
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'green' }]}
-                    onPress={() => {
+                    onPress={async () => {
                         if (/^[0-9]+(\.[0-9]{1,2})?$/g.test(value)) {
-                            props.route.params.editMode ?
-                                updateTransaction({
-                                    id: props.route.params.id,
-                                    name: name,
-                                    value: isPositive ? value : -1 * value,
-                                    details: details,
-                                    date: date,
-                                    categoryId: categoryId
-                                }) :
-                                addTransaction({
-                                    name: name,
-                                    value: isPositive ? value : -1 * value,
-                                    details: details,
-                                    date: date,
-                                    categoryId: categoryId
-                                })
-                            props.navigation.goBack();
+
+                            await actions.updateTransaction({
+                                id: id,
+                                name: name,
+                                value: isPositive ? value : -1 * value,
+                                details: details,
+                                date: date,
+                                categoryId: categoryId
+                            })
+                            router.dismiss();
                         } else {
                             switch (Platform.OS) {
                                 case 'android': ToastAndroid.show('Please enter a valid Value!', ToastAndroid.SHORT)
@@ -162,4 +165,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Booking;
+export default EditScreen;

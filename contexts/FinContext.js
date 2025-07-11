@@ -15,11 +15,7 @@ async function openDatabase() {
     }
     const db = await SQLite.openDatabaseAsync('finDatabase.db');
     console.log('Database opened:', db);
-    db.current.runAsync(
-        [{ sql: 'PRAGMA foreign_keys = ON;', args: [] }],
-        false,
-        () => { },
-    );
+    await db.execAsync('PRAGMA foreign_keys = ON;');
     console.log('Foreign keys enabled');
     return db;
 }
@@ -48,8 +44,10 @@ export const FinProvider = ({ children }) => {
     const db = useRef();
 
     useEffect(() => {
+        console.log('FinProvider useEffect');
         (async () => {
             db.current = await openDatabase();
+            console.log('Database initialized:', db.current);
             await refresh();
             setIsLoading(false);
         })();
@@ -78,8 +76,9 @@ export const FinProvider = ({ children }) => {
         columns = columns.slice(0, -1);
         qms = qms.slice(0, -1);
         const sql = `INSERT INTO ${name} (${columns}) VALUES (${qms})`
-        db.current.runAsync(sql, values)
-        const res = await db.current.executeSql(sql, values)
+        const res = db.current.runAsync(sql, values)
+        // const res = await db.current.executeSql(sql, values)
+        console.log('Entity created:', name, res);
         return res.insertId;
 
     }
@@ -146,7 +145,7 @@ export const FinProvider = ({ children }) => {
             date: transaction.date.toISOString(),
             categoryId: transaction.categoryId,
         });
-        refresh();
+        await refresh();
         return id;
     }
 
@@ -227,6 +226,7 @@ export const FinProvider = ({ children }) => {
     }
 
     const refresh = async (date = null) => {
+        console.log('Refreshing data with date:', date);
         await fetchCategories(date);
         await fetchTransactions();
     }
