@@ -1,8 +1,8 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
 import { BackHandler, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import CategoryItemList from '../components/CategoryItemList';
 import DatePicker from '../components/DatePicker';
 import { finContext } from '../contexts/FinContext';
@@ -15,6 +15,7 @@ const CategoryScreen = () => {
     const [selectedCategory, setSelectedCategory] = useState(categoryIdParam ? context.categories.find(c => c.id === categoryIdParam) : context.categories[0]);
     const childCategories = selectedCategory ? context.categories.filter((category) => category.id !== null && category.parentId === selectedCategory.id) : [];
     const router = useRouter();
+    const isFocused = useIsFocused();
 
     const scaleFontSize = (fontSize: number) => {
         return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
@@ -33,7 +34,7 @@ const CategoryScreen = () => {
 
     useEffect(() => {
         setLatestDate();
-    }, []);
+    }, [isFocused]);
 
     const setDate = (date: Date) => {
         _setDate(date);
@@ -70,16 +71,16 @@ const CategoryScreen = () => {
 
     if (!selectedCategory) {
         return (
-            <SafeAreaView style={styles.screen}>
+            <View style={styles.screen}>
                 <View style={styles.header}>
                     <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>No Category Selected</Text>
                 </View>
-            </SafeAreaView>
+            </View>
         );
     }
 
     return (
-        <SafeAreaView style={styles.screen}>
+        <View style={styles.screen}>
             <View style={styles.topBar}>
                 <View style={styles.dateBar}>
                     <DatePicker
@@ -152,7 +153,7 @@ const CategoryScreen = () => {
                     <Text style={{ color: 'white' }}>-</Text>
                 </TouchableOpacity>}
             </View>
-        </SafeAreaView >
+        </View >
     );
 };
 
@@ -161,7 +162,8 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'black',
         color: 'white',
-        padding: 5
+        paddingHorizontal: 5,
+
     },
     header: {
         width: '100%',
@@ -176,8 +178,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 10,
-        paddingVertical: 5
+        paddingHorizontal: 5,
+        paddingVertical: 5,
     },
     dateBar: {
         flexDirection: 'row',

@@ -31,7 +31,7 @@ const DatePicker = props => {
                     props.setDate(newDate);
                 }}
             >
-                <Ionicons name="ios-arrow-back" size={32} color="white" />
+                <Ionicons name="arrow-back" size={32} color="white" />
             </TouchableOpacity>}
 
             <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
@@ -48,7 +48,7 @@ const DatePicker = props => {
                     props.setDate(newDate);
                 }}
             >
-                <Ionicons name="ios-arrow-forward" size={32} color="white" />
+                <Ionicons name="arrow-forward" size={32} color="white" />
             </TouchableOpacity>}
 
             {show && (

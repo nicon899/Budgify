@@ -28,7 +28,7 @@ export default function FinanceStackNavigator() {
             <Stack.Screen name="[categoryId]/booking/[bookingId]/edit" options={{ title: 'Edit Booking', headerShown: false }} />
             <Stack.Screen name="category/[categoryId]/create" options={{ title: 'Create Category', headerShown: false }} />
             <Stack.Screen name="category/[categoryId]" options={{ title: 'Edit Category', headerShown: false }} />
-            {/* <Stack.Screen name="Settings" options={{ title: 'Settings' }} /> */}
+            <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: false, }} />
             <Stack.Screen name="+not-found" />
         </Stack>
     );
@@ -36,7 +36,7 @@ export default function FinanceStackNavigator() {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: 'black',
+        backgroundColor: 'green',
         color: 'white',
         justifyContent: 'center',
     }

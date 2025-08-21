@@ -9,11 +9,11 @@ async function openDatabase() {
     if (!(await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'SQLite')).exists) {
         await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'SQLite');
         await FileSystem.downloadAsync(
-            Asset.fromModule(require('../assets/finDatabase.db')).uri,
-            FileSystem.documentDirectory + 'SQLite/finDatabase.db'
+            Asset.fromModule(require('../assets/budgifyDB.db')).uri,
+            FileSystem.documentDirectory + 'SQLite/budgifyDB.db'
         );
     }
-    const db = await SQLite.openDatabaseAsync('finDatabase.db');
+    const db = await SQLite.openDatabaseAsync('budgifyDB.db');
     await db.execAsync('PRAGMA foreign_keys = ON;');
     return db;
 }
@@ -54,9 +54,9 @@ export const FinProvider = ({ children }) => {
         db.current._db.close();
         await FileSystem.moveAsync({
             from: uri,
-            to: FileSystem.documentDirectory + 'SQLite/finDatabase.db'
+            to: FileSystem.documentDirectory + 'SQLite/budgifyDB.db'
         });
-        db.current = await SQLite.openDatabaseAsync('finDatabase.db');
+        db.current = await SQLite.openDatabaseAsync('budgifyDB.db');
         await db.current.execAsync('PRAGMA foreign_keys = ON;');
         await refresh();
     }

@@ -1,9 +1,9 @@
-import { StyleSheet, Text, ToastAndroid, View } from 'react-native'
-import { TouchableOpacity } from 'react-native-gesture-handler'
-import * as Sharing from 'expo-sharing';
-import * as FileSystem from 'expo-file-system';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { useContext } from 'react';
+import { StyleSheet, Text, ToastAndroid, View } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { finContext } from '../contexts/FinContext';
 
 const Settings = () => {
@@ -17,11 +17,11 @@ const Settings = () => {
 
     return (
         <View style={styles.screen}>
-
+            <Text style={styles.heading}>Settings</Text>
             <TouchableOpacity style={styles.button}
                 onPress={async () => {
                     await Sharing.shareAsync(
-                        FileSystem.documentDirectory + 'SQLite/finDatabase.db',
+                        FileSystem.documentDirectory + 'SQLite/budgifyDB.db',
                         { dialogTitle: 'share or copy your DB via' }
                     ).catch(error => {
                         console.log(error);
@@ -43,17 +43,21 @@ export default Settings
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: '#000099',
-        alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: '#0000',
         width: '100%'
     },
-    button: {
-        borderWidth: 1,
-        borderColor: 'white',
-        padding: 25,
+    heading: {
+        color: 'white',
+        fontSize: 30,
         margin: 25,
-        width: '100%',
+    },
+    button: {
+        backgroundColor: '#007AFF',
+        padding: 15,
+        borderRadius: 5,
+        margin: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     buttonText: {
         color: 'white',

@@ -1,11 +1,11 @@
 import React from 'react';
-import { StyleSheet, FlatList, SafeAreaView } from 'react-native';
-import CategoryItem from './CategoryItem';
+import { FlatList, StyleSheet, View } from 'react-native';
 import BookingItem from './BookingItem';
+import CategoryItem from './CategoryItem';
 
 const CategoryItemList = props => {
     return (
-        <SafeAreaView style={props.style}>
+        <View style={props.style}>
             <FlatList
                 data={props.categories.concat(props.bookings)}
                 keyExtractor={item => `${item.id}`}
@@ -17,7 +17,7 @@ const CategoryItemList = props => {
                     }
                 }}
             />
-        </SafeAreaView>
+        </View>
     );
 };
 

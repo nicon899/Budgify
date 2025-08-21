@@ -32,7 +32,7 @@ const EditScreen = props => {
             <View style={styles.screen}>
                 <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: scaleFontSize(42) }}>Edit Booking</Text>
 
-                <CategoryPicker categoryId={categoryId} setCategoryId={setCategoryId} />
+                <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
 
                 <TextInput
                     placeholder='Name'
@@ -141,11 +141,7 @@ const styles = StyleSheet.create({
         borderColor: 'grey',
         borderWidth: 1,
         color: 'white',
-    },
-    picker: {
-        height: 25,
-        width: '100%',
-        padding: 10,
+        borderRadius: 5,
     },
     dateInput: {
         width: '75%',
@@ -162,6 +158,10 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 25,
         paddingVertical: 10,
+    },
+    categoryPicker: {
+        width: '80%',
+        marginBottom: 20,
     }
 });
 

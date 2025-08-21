@@ -24,9 +24,15 @@ const Booking = props => {
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
-                <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: scaleFontSize(42) }}>New Booking</Text>
 
-                <CategoryPicker categoryId={categoryId} setCategoryId={setCategoryId} />
+                <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
+
+                <DatePicker
+                    style={styles.dateInput}
+                    date={date}
+                    setDate={setDate}
+                    setTime={false}
+                />
 
                 <TextInput
                     placeholder='Name'
@@ -37,13 +43,6 @@ const Booking = props => {
                     autoCorrect={false}
                     value={name}
                     onChangeText={(input) => setName(input)}
-                />
-
-                <DatePicker
-                    style={styles.dateInput}
-                    date={date}
-                    setDate={setDate}
-                    setTime={false}
                 />
 
                 <View style={styles.valueInput}>
@@ -132,11 +131,7 @@ const styles = StyleSheet.create({
         borderColor: 'grey',
         borderWidth: 1,
         color: 'white',
-    },
-    picker: {
-        height: 25,
-        width: '100%',
-        padding: 10,
+        borderRadius: 5,
     },
     dateInput: {
         width: '75%',
@@ -153,6 +148,10 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingHorizontal: 25,
         paddingVertical: 10,
+    },
+    categoryPicker: {
+        width: '80%',
+        marginBottom: 20,
     }
 });
 

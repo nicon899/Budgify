@@ -40,10 +40,10 @@ const CategoryPicker = props => {
     }, [allCategories])
 
     return (
-        <View style={{ width: '100%' }}>
+        <View style={[styles.picker, props.style]}>
             {pickerItems.length > 0 && <Picker
                 selectedValue={props.categoryId}
-                style={{ height: 50, color: 'white', width: '90%', textAlign: 'center', marginLeft: 50, marginBottom: 20 }}
+                style={{ color: 'white', textAlign: 'center' }}
                 onValueChange={(itemValue, itemIndex) => {
                     props.setCategoryId(itemValue);
                 }}>
@@ -60,4 +60,7 @@ const styles = StyleSheet.create({
         color: 'white',
         padding: 10
     },
+    picker: {
+        width: '100%',
+    }
 })
