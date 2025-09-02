@@ -29,6 +29,9 @@ export default function FinanceStackNavigator() {
             <Stack.Screen name="category/[categoryId]/create" options={{ title: 'Create Category', headerShown: false }} />
             <Stack.Screen name="category/[categoryId]" options={{ title: 'Edit Category', headerShown: false }} />
             <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: false, }} />
+            <Stack.Screen name="templates" options={{ title: 'Templates', headerShown: false, }} />
+            <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: false }} />
+            <Stack.Screen name="templates/[templateId]" options={{ title: 'Edit Template', headerShown: false }} />
             <Stack.Screen name="+not-found" />
         </Stack>
     );
@@ -36,7 +39,7 @@ export default function FinanceStackNavigator() {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: 'green',
+        backgroundColor: 'black',
         color: 'white',
         justifyContent: 'center',
     }

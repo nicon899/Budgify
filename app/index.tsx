@@ -3,6 +3,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useContext, useEffect, useState } from 'react';
 import { BackHandler, Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { IconButton, Menu, Provider as PaperProvider } from "react-native-paper";
 import CategoryItemList from '../components/CategoryItemList';
 import DatePicker from '../components/DatePicker';
 import { finContext } from '../contexts/FinContext';
@@ -16,6 +17,11 @@ const CategoryScreen = () => {
     const childCategories = selectedCategory ? context.categories.filter((category) => category.id !== null && category.parentId === selectedCategory.id) : [];
     const router = useRouter();
     const isFocused = useIsFocused();
+    const [visible, setVisible] = React.useState(false);
+
+    const openMenu = () => setVisible(true);
+    const closeMenu = () => setVisible(false);
+    2
 
     const scaleFontSize = (fontSize: number) => {
         return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
@@ -80,80 +86,98 @@ const CategoryScreen = () => {
     }
 
     return (
-        <View style={styles.screen}>
-            <View style={styles.topBar}>
-                <View style={styles.dateBar}>
-                    <DatePicker
-                        style={styles.dateInput}
-                        date={date}
-                        setDate={setDate}
-                        setTime={false}
-                        showArrow={false}
-                    />
-                    <View style={styles.topBarDateIcons}>
-                        <TouchableOpacity
-                            style={{ alignItems: 'center', justifyContent: 'center' }}
-                            onPress={() => setDate(new Date())}
-                        >
-                            <MaterialCommunityIcons name="timetable" size={scaleFontSize(24)} color="white" />
-                            <Text style={{ color: 'white', fontSize: FONT_SIZE_7 }}>Today</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={{ alignItems: 'center', justifyContent: 'center', marginLeft: 10 }}
-                            onPress={() => setLatestDate()}>
-                            <MaterialCommunityIcons name="timer-sand-full" size={scaleFontSize(24)} color="white" />
-                            <Text style={{ color: 'white', fontSize: FONT_SIZE_7 }}>Latest</Text>
-                        </TouchableOpacity>
+        <PaperProvider>
+
+            <View style={styles.screen}>
+                <View style={styles.topBar}>
+                    <View style={styles.dateBar}>
+                        <DatePicker
+                            style={styles.dateInput}
+                            date={date}
+                            setDate={setDate}
+                            setTime={false}
+                            showArrow={false}
+                        />
+                        <View style={styles.topBarDateIcons}>
+                            <TouchableOpacity
+                                style={{ alignItems: 'center', justifyContent: 'center' }}
+                                onPress={() => setDate(new Date())}
+                            >
+                                <MaterialCommunityIcons name="timetable" size={scaleFontSize(24)} color="white" />
+                                <Text style={{ color: 'white', fontSize: FONT_SIZE_7 }}>Today</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ alignItems: 'center', justifyContent: 'center', marginLeft: 10 }}
+                                onPress={() => setLatestDate()}>
+                                <MaterialCommunityIcons name="timer-sand-full" size={scaleFontSize(24)} color="white" />
+                                <Text style={{ color: 'white', fontSize: FONT_SIZE_7 }}>Latest</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
+                    {/* <TouchableOpacity
+                        onPress={() => router.navigate(`/settings`)}>
+                        <MaterialCommunityIcons name="dots-vertical" size={scaleFontSize(28)} color="white" />
+                    </TouchableOpacity> */}
+                    <Menu
+                        visible={visible}
+                        onDismiss={closeMenu}
+                        anchor={
+                            <IconButton
+                                icon="dots-vertical" // die drei Punkte
+                                size={24}
+                                onPress={openMenu}
+                            />
+                        }
+                    >
+                        <Menu.Item onPress={() => router.navigate(`/settings`)} title="Settings" />
+                        <Menu.Item onPress={() => router.navigate(`/templates`)} title="Templates" />
+                    </Menu>
                 </View>
-                <TouchableOpacity
-                    onPress={() => router.navigate(`/settings`)}>
-                    <MaterialCommunityIcons name="cog-outline" size={scaleFontSize(28)} color="white" />
-                </TouchableOpacity>
-            </View>
 
-            <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.headerCat}
-                    onPress={() => {
-                        router.navigate(`/category/${selectedCategory.id}`);
-                    }}
-                >
-                    <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>{selectedCategory.name}</Text>
-                    <Text numberOfLines={1} style={{ marginRight: 5, fontSize: scaleFontSize(28), textAlign: 'center', color: selectedCategory.value > 0 ? 'green' : 'red', fontFamily: 'JetBrainsMono-Bold' }}>{(selectedCategory.name + selectedCategory.value).length > 20 && '\n'}{selectedCategory.value.toFixed(2)}</Text>
-                </TouchableOpacity>
-            </View>
+                <View style={styles.header}>
+                    <TouchableOpacity
+                        style={styles.headerCat}
+                        onPress={() => {
+                            router.navigate(`/category/${selectedCategory.id}`);
+                        }}
+                    >
+                        <Text style={{ color: 'white', fontSize: scaleFontSize(36), fontWeight: 'bold', textAlign: 'center' }}>{selectedCategory.name}</Text>
+                        <Text numberOfLines={1} style={{ marginRight: 5, fontSize: scaleFontSize(28), textAlign: 'center', color: selectedCategory.value > 0 ? 'green' : 'red', fontFamily: 'JetBrainsMono-Bold' }}>{(selectedCategory.name + selectedCategory.value).length > 20 && '\n'}{selectedCategory.value.toFixed(2)}</Text>
+                    </TouchableOpacity>
+                </View>
 
-            <View style={{ flex: 1 }}>
-                <CategoryItemList
-                    style={{ maxHeight: '100%' }}
-                    bookings={context.transactions.filter(t => t.categoryId === selectedCategory.id && t.date <= date)}
-                    categories={childCategories}
-                    showBooking={(id) => router.navigate(`${selectedCategory.id}/booking/${id}`)}
-                    showCategory={(id) => setSelectedCategory(context.categories.find((category) => category.id === id))}
-                    showBookings={selectedCategory.id !== null}
-                />
-            </View>
+                <View style={{ flex: 1 }}>
+                    <CategoryItemList
+                        style={{ maxHeight: '100%' }}
+                        bookings={context.transactions.filter(t => t.categoryId === selectedCategory.id && t.date <= date)}
+                        categories={childCategories}
+                        showBooking={(id) => router.navigate(`${selectedCategory.id}/booking/${id}`)}
+                        showCategory={(id) => setSelectedCategory(context.categories.find((category) => category.id === id))}
+                        showBookings={selectedCategory.id !== null}
+                    />
+                </View>
 
-            <View style={styles.transBar}>
-                {selectedCategory.id !== null && <TouchableOpacity
-                    style={[styles.transButton, { borderColor: '#00FF00', backgroundColor: '#00FF00' }]}
-                    onPress={() => {
-                        router.navigate(`${selectedCategory.id}/booking/create?isPositive=true`);
-                    }}
-                >
-                    <Text style={{ color: 'white' }}>+</Text>
-                </TouchableOpacity>}
-                {selectedCategory.id !== null && <TouchableOpacity
-                    style={[styles.transButton, { borderColor: '#FF0000', backgroundColor: '#FF0000' }]}
-                    onPress={() => {
-                        router.navigate(`${selectedCategory.id}/booking/create?isPositive=false`);
-                    }}
-                >
-                    <Text style={{ color: 'white' }}>-</Text>
-                </TouchableOpacity>}
-            </View>
-        </View >
+                <View style={styles.transBar}>
+                    {selectedCategory.id !== null && <TouchableOpacity
+                        style={[styles.transButton, { borderColor: '#00FF00', backgroundColor: '#00FF00' }]}
+                        onPress={() => {
+                            router.navigate(`${selectedCategory.id}/booking/create?isPositive=true`);
+                        }}
+                    >
+                        <Text style={{ color: 'white' }}>+</Text>
+                    </TouchableOpacity>}
+                    {selectedCategory.id !== null && <TouchableOpacity
+                        style={[styles.transButton, { borderColor: '#FF0000', backgroundColor: '#FF0000' }]}
+                        onPress={() => {
+                            router.navigate(`${selectedCategory.id}/booking/create?isPositive=false`);
+                        }}
+                    >
+                        <Text style={{ color: 'white' }}>-</Text>
+                    </TouchableOpacity>}
+                </View>
+            </View >
+        </PaperProvider>
+
     );
 };
 

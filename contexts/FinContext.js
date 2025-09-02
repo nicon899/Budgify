@@ -27,10 +27,15 @@ const initialContext = {
         updateTransaction: async (transaction) => { },
         deleteTransaction: async (id) => { },
         restoreBackup: async (uri) => { },
-        refresh: async () => { }
+        refresh: async () => { },
+        addTemplate: async (template) => { },
+        updateTemplate: async (template) => { },
+        deleteTemplate: async (id) => { },
+        fetchTemplates: async () => { },
     },
     categories: [],
     transactions: [],
+    templates: [],
 };
 
 export const finContext = React.createContext(initialContext);
@@ -38,6 +43,7 @@ export const finContext = React.createContext(initialContext);
 export const FinProvider = ({ children }) => {
     const [categories, setCategories] = useState([]);
     const [transactions, setTransactions] = useState([]);
+    const [templates, setTemplates] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const db = useRef();
 
@@ -74,7 +80,6 @@ export const FinProvider = ({ children }) => {
         const sql = `INSERT INTO ${name} (${columns}) VALUES (${qms})`
         const res = await db.current.runAsync(sql, values)
         return res.insertId;
-
     }
 
     const deleteEntity = async (name, id) => {
@@ -194,6 +199,47 @@ export const FinProvider = ({ children }) => {
         setTransactions(fetchedTransactions);
     }
 
+    const addTemplate = async (template) => {
+        const id = await createEntity('template', {
+            name: template.name
+        });
+        console.log('Template added with id:', id);
+        return id;
+    }
+
+    const updateTemplate = async (template) => {
+        const sql = `UPDATE template SET 
+                    name = '${template.name}'
+                WHERE id = ${template.id}`
+        // execute sql
+        await db.current.execAsync(sql)
+        await refresh();
+    }
+
+    const deleteTemplate = async (id) => {
+        await deleteEntity('template', id);
+        await refresh();
+    }
+
+    const fetchTemplates = async () => {
+        const getTemplatesSQL = `
+            SELECT templ.*
+            ,(SELECT SUM(value)
+                FROM templateTransaction
+                WHERE
+                templateId = templ.id) AS value
+            FROM template templ`;
+        const rows = await db.current.getAllAsync(getTemplatesSQL);
+        const fetchedTemplates = rows.map(c => {
+            return {
+                id: c.id,
+                name: c.name,
+                value: formatValue(c.value),
+            }
+        })
+        setTemplates(fetchedTemplates);
+    }
+
     const refresh = async (date = null) => {
         await fetchCategories(date);
         await fetchTransactions();
@@ -210,11 +256,16 @@ export const FinProvider = ({ children }) => {
                     addTransaction,
                     updateTransaction,
                     deleteTransaction,
-                    restoreBackup
+                    restoreBackup,
+                    addTemplate,
+                    updateTemplate,
+                    deleteTemplate,
+                    fetchTemplates
                 },
                 isLoading,
                 categories,
-                transactions
+                transactions, 
+                templates
             }}
         >
             {children}
