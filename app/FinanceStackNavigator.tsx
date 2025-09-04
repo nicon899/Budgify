@@ -32,6 +32,7 @@ export default function FinanceStackNavigator() {
             <Stack.Screen name="templates" options={{ title: 'Templates', headerShown: false, }} />
             <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: false }} />
             <Stack.Screen name="templates/[templateId]" options={{ title: 'Edit Template', headerShown: false }} />
+            <Stack.Screen name="templates/[templateId]/transaction/create" options={{ title: 'Create Transaction', headerShown: false }} />
             <Stack.Screen name="+not-found" />
         </Stack>
     );

@@ -32,6 +32,10 @@ const initialContext = {
         updateTemplate: async (template) => { },
         deleteTemplate: async (id) => { },
         fetchTemplates: async () => { },
+        fetchTemplateTransactions: async (templateId) => { },
+        addTemplateTransaction: async (transaction) => { },
+        updateTemplateTransaction: async (transaction) => { },
+        deleteTemplateTransaction: async (id) => { },
     },
     categories: [],
     transactions: [],
@@ -78,8 +82,14 @@ export const FinProvider = ({ children }) => {
         columns = columns.slice(0, -1);
         qms = qms.slice(0, -1);
         const sql = `INSERT INTO ${name} (${columns}) VALUES (${qms})`
-        const res = await db.current.runAsync(sql, values)
-        return res.insertId;
+        console.log('Executing SQL:', sql, 'with values:', values);
+        try {
+            const res = await db.current.runAsync(sql, values)
+            return res.insertId;
+        } catch (error) {
+            console.error('Error executing SQL:', error);
+            throw error;
+        }
     }
 
     const deleteEntity = async (name, id) => {
@@ -240,6 +250,53 @@ export const FinProvider = ({ children }) => {
         setTemplates(fetchedTemplates);
     }
 
+    const fetchTemplateTransactions = async (templateId) => {
+        const getTransactionsSQL = `SELECT * FROM templateTransaction WHERE templateId = ${templateId}`;
+        const rows = await db.current.getAllAsync(getTransactionsSQL);
+        const fetchedTransactions = rows.map(t => {
+            return {
+                id: t.id,
+                name: t.name,
+                value: formatValue(t.value),
+                details: t.details,
+                dateOffset: t.dateOffset,
+                categoryId: t.categoryId,
+                templateId: t.templateId
+            }
+        })
+        return fetchedTransactions;
+    }
+
+    const addTemplateTransaction = async (transaction) => {
+        const id = await createEntity('templateTransaction', {
+            name: transaction.name,
+            value: transaction.value,
+            details: transaction.details,
+            dateOffset: transaction.dateOffset,
+            categoryId: transaction.categoryId,
+            templateId: transaction.templateId,
+        });
+        return id;
+    }
+
+    const updateTemplateTransaction = async (transaction) => {
+        const sql = `UPDATE templateTransaction SET 
+                    name = '${transaction.name}'
+                    ,value = ${transaction.value}
+                    ,details = '${transaction.details}'
+                    ,dateOffset = '${transaction.dateOffset.toISOString()}'
+                    ,categoryId = ${transaction.categoryId}
+                    ,templateId = ${transaction.templateId}
+                WHERE id = ${transaction.id}`
+        // execute sql
+        const res = await db.current.execAsync(sql)
+    }
+
+    const deleteTemplateTransaction = async (id) => {
+        await deleteEntity('templateTransaction', id);
+    }
+
+
     const refresh = async (date = null) => {
         await fetchCategories(date);
         await fetchTransactions();
@@ -260,11 +317,15 @@ export const FinProvider = ({ children }) => {
                     addTemplate,
                     updateTemplate,
                     deleteTemplate,
-                    fetchTemplates
+                    fetchTemplates,
+                    addTemplateTransaction,
+                    updateTemplateTransaction,
+                    deleteTemplateTransaction,
+                    fetchTemplateTransactions,
                 },
                 isLoading,
                 categories,
-                transactions, 
+                transactions,
                 templates
             }}
         >
