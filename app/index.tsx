@@ -33,7 +33,6 @@ const CategoryScreen = () => {
         if (selectedCategory) {
             setSelectedCategory(context.categories.find(c => c.id === selectedCategory.id))
         } else if (context.categories.length > 0) {
-            console.log(categoryIdParam)
             setSelectedCategory(categoryIdParam ? context.categories.find(c => c.id === categoryIdParam) : context.categories[0]);
         }
     }, [context.categories])

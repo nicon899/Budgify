@@ -82,7 +82,6 @@ export const FinProvider = ({ children }) => {
         columns = columns.slice(0, -1);
         qms = qms.slice(0, -1);
         const sql = `INSERT INTO ${name} (${columns}) VALUES (${qms})`
-        console.log('Executing SQL:', sql, 'with values:', values);
         try {
             const res = await db.current.runAsync(sql, values)
             return res.insertId;
@@ -213,7 +212,6 @@ export const FinProvider = ({ children }) => {
         const id = await createEntity('template', {
             name: template.name
         });
-        console.log('Template added with id:', id);
         return id;
     }
 

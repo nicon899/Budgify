@@ -11,7 +11,6 @@ const TemplateTransaction = props => {
     const { templateId: templateIdParam } = useLocalSearchParams();
     const templateId = templateIdParam ? parseInt(templateIdParam) : null;
     const [categoryId, setCategoryId] = useState(categories[1].id);
-    console.log('Template ID:', categoryId);
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
     const [details, setDetails] = useState('');
@@ -46,8 +45,8 @@ const TemplateTransaction = props => {
 
 
                 <TextInput
-                    placeholder='Name'
-                    placeholderTextColor="white"
+                    placeholder='Default Name'
+                    placeholderTextColor="grey"
                     style={[styles.input, { marginBottom: 25 }]}
                     blurOnSubmit
                     autoCapitalize="none"
