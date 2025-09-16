@@ -48,8 +48,8 @@ const Booking = props => {
                 <View style={styles.valueInput}>
                     <TouchableOpacity
                         onPress={() => setIsPositive(!isPositive)}   >
-                        {isPositive && <AntDesign style={{ marginRight: '10%' }} name="pluscircle" size={32} color="green" />}
-                        {!isPositive && <AntDesign style={{ marginRight: '10%' }} name="minuscircle" size={32} color="red" />}
+                        {isPositive && <AntDesign style={{ marginRight: '10%' }} name="plus-circle" size={32} color="green" />}
+                        {!isPositive && <AntDesign style={{ marginRight: '10%' }} name="minus-circle" size={32} color="red" />}
                     </TouchableOpacity>
                     <TextInput
                         style={[styles.input, { width: '50%' }]}

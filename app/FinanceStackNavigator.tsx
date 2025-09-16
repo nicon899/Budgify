@@ -2,7 +2,6 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import React, { useContext } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import 'react-native-reanimated';
 import { finContext } from '../contexts/FinContext';
 
 export default function FinanceStackNavigator() {
@@ -33,6 +32,7 @@ export default function FinanceStackNavigator() {
             <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: false }} />
             <Stack.Screen name="templates/[templateId]" options={{ title: 'Edit Template', headerShown: false }} />
             <Stack.Screen name="templates/[templateId]/transaction/create" options={{ title: 'Create Transaction', headerShown: false }} />
+            <Stack.Screen name="templates/[templateId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction', headerShown: false }} />
             <Stack.Screen name="+not-found" />
         </Stack>
     );

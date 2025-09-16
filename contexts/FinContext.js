@@ -1,22 +1,9 @@
-import { Asset } from 'expo-asset';
-import * as FileSystem from 'expo-file-system';
-import * as SQLite from "expo-sqlite";
-import React, { useEffect, useRef, useState } from 'react';
+import { SQLite, useSQLiteContext } from 'expo-sqlite';
+
+import React, { useEffect, useState } from 'react';
 
 const formatValue = (num) => Math.round((num + Number.EPSILON) * 100) / 100
 
-async function openDatabase() {
-    if (!(await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'SQLite')).exists) {
-        await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'SQLite');
-        await FileSystem.downloadAsync(
-            Asset.fromModule(require('../assets/budgifyDB.db')).uri,
-            FileSystem.documentDirectory + 'SQLite/budgifyDB.db'
-        );
-    }
-    const db = await SQLite.openDatabaseAsync('budgifyDB.db');
-    await db.execAsync('PRAGMA foreign_keys = ON;');
-    return db;
-}
 
 const initialContext = {
     actions: {
@@ -36,6 +23,7 @@ const initialContext = {
         addTemplateTransaction: async (transaction) => { },
         updateTemplateTransaction: async (transaction) => { },
         deleteTemplateTransaction: async (id) => { },
+        fetchTemplateTransaction: async (transactionId) => { },
     },
     categories: [],
     transactions: [],
@@ -49,25 +37,41 @@ export const FinProvider = ({ children }) => {
     const [transactions, setTransactions] = useState([]);
     const [templates, setTemplates] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const db = useRef();
+    const db = useSQLiteContext();
+
 
     useEffect(() => {
         (async () => {
-            db.current = await openDatabase();
             await refresh();
             setIsLoading(false);
         })();
     }, [])
 
     const restoreBackup = async (uri) => {
-        // @ts-ignore
-        db.current._db.close();
-        await FileSystem.moveAsync({
-            from: uri,
-            to: FileSystem.documentDirectory + 'SQLite/budgifyDB.db'
-        });
-        db.current = await SQLite.openDatabaseAsync('budgifyDB.db');
-        await db.current.execAsync('PRAGMA foreign_keys = ON;');
+        // 1) Load the backup file into memory
+        const backupFile = new File(uri);
+        const bytes = await backupFile.bytes(); // Uint8Array
+
+        // 2) Turn the bytes into a *source* SQLite database (in-memory)
+        const src = await SQLite.deserializeDatabaseAsync(bytes);
+
+        try {
+            // 3) Copy source -> destination (the provider DB) atomically
+            await SQLite.backupDatabaseAsync({
+                sourceDatabase: src,
+                sourceDatabaseName: 'main',
+                destDatabase: db,
+                destDatabaseName: 'main',
+            });
+
+            // 4) Your PRAGMAs or post-restore hooks
+            await db.execAsync('PRAGMA foreign_keys = ON;');
+        } finally {
+            // 5) Always clean up the temp source DB
+            await src.closeAsync();
+        }
+
+        // 6) Refresh your UI/data
         await refresh();
     }
 
@@ -83,7 +87,7 @@ export const FinProvider = ({ children }) => {
         qms = qms.slice(0, -1);
         const sql = `INSERT INTO ${name} (${columns}) VALUES (${qms})`
         try {
-            const res = await db.current.runAsync(sql, values)
+            const res = await db.runAsync(sql, values)
             return res.insertId;
         } catch (error) {
             console.error('Error executing SQL:', error);
@@ -93,7 +97,7 @@ export const FinProvider = ({ children }) => {
 
     const deleteEntity = async (name, id) => {
         const sql = `DELETE FROM ${name} WHERE id = ${id}`
-        await db.current.execAsync(sql);
+        await db.execAsync(sql);
     }
 
     const addCategory = async (category) => {
@@ -113,7 +117,7 @@ export const FinProvider = ({ children }) => {
                     ,parentId = ${category.parentId}
                 WHERE id = ${category.id}`
         // execute sql
-        await db.current.execAsync(sql)
+        await db.execAsync(sql)
         await refresh();
     }
 
@@ -143,7 +147,7 @@ export const FinProvider = ({ children }) => {
                     ,categoryId = ${transaction.categoryId}
                 WHERE id = ${transaction.id}`
         // execute sql
-        const res = await db.current.execAsync(sql)
+        const res = await db.execAsync(sql)
         await refresh();
     }
 
@@ -179,7 +183,7 @@ export const FinProvider = ({ children }) => {
                 SELECT NULL id, 'Total', 0, null
                 ,(SELECT SUM(value) FROM finTransaction ${date ? 'WHERE date <= \'' + date + '\'' : ''})
             ORDER BY listIndex`;
-        const rows = await db.current.getAllAsync(getCategoriesSQL);
+        const rows = await db.getAllAsync(getCategoriesSQL);
         const fetchedCategories = rows.map(c => {
             return {
                 id: c.id,
@@ -194,7 +198,7 @@ export const FinProvider = ({ children }) => {
 
     const fetchTransactions = async () => {
         const getTransactionsSQL = `SELECT * FROM FinTransaction ORDER BY date desc`;
-        const rows = await db.current.getAllAsync(getTransactionsSQL);
+        const rows = await db.getAllAsync(getTransactionsSQL);
         const fetchedTransactions = rows.map(t => {
             return {
                 id: t.id,
@@ -220,7 +224,7 @@ export const FinProvider = ({ children }) => {
                     name = '${template.name}'
                 WHERE id = ${template.id}`
         // execute sql
-        await db.current.execAsync(sql)
+        await db.execAsync(sql)
         await refresh();
     }
 
@@ -237,7 +241,7 @@ export const FinProvider = ({ children }) => {
                 WHERE
                 templateId = templ.id) AS value
             FROM template templ`;
-        const rows = await db.current.getAllAsync(getTemplatesSQL);
+        const rows = await db.getAllAsync(getTemplatesSQL);
         const fetchedTemplates = rows.map(c => {
             return {
                 id: c.id,
@@ -250,7 +254,7 @@ export const FinProvider = ({ children }) => {
 
     const fetchTemplateTransactions = async (templateId) => {
         const getTransactionsSQL = `SELECT * FROM templateTransaction WHERE templateId = ${templateId}`;
-        const rows = await db.current.getAllAsync(getTransactionsSQL);
+        const rows = await db.getAllAsync(getTransactionsSQL);
         const fetchedTransactions = rows.map(t => {
             return {
                 id: t.id,
@@ -263,6 +267,12 @@ export const FinProvider = ({ children }) => {
             }
         })
         return fetchedTransactions;
+    }
+
+    const fetchTemplateTransaction = async (transactionId) => {
+        const getTransactionsSQL = `SELECT * FROM templateTransaction WHERE id = ${transactionId}`;
+        const fetchedTransaction = await db.getFirstAsync(getTransactionsSQL);
+        return fetchedTransaction;
     }
 
     const addTemplateTransaction = async (transaction) => {
@@ -282,12 +292,11 @@ export const FinProvider = ({ children }) => {
                     name = '${transaction.name}'
                     ,value = ${transaction.value}
                     ,details = '${transaction.details}'
-                    ,dateOffset = '${transaction.dateOffset.toISOString()}'
+                    ,dateOffset = '${transaction.dateOffset}'
                     ,categoryId = ${transaction.categoryId}
-                    ,templateId = ${transaction.templateId}
                 WHERE id = ${transaction.id}`
         // execute sql
-        const res = await db.current.execAsync(sql)
+        const res = await db.execAsync(sql)
     }
 
     const deleteTemplateTransaction = async (id) => {
@@ -320,6 +329,7 @@ export const FinProvider = ({ children }) => {
                     updateTemplateTransaction,
                     deleteTemplateTransaction,
                     fetchTemplateTransactions,
+                    fetchTemplateTransaction,
                 },
                 isLoading,
                 categories,

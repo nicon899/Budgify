@@ -1,15 +1,15 @@
+import CategoryPicker from '@/components/CategoryPicker';
 import { finContext } from '@/contexts/FinContext';
 import { AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useContext, useState } from 'react';
-import { Alert, Dimensions, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import CategoryPicker from '../../../../components/CategoryPicker';
+import { useContext, useEffect, useState } from 'react';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 
 const TemplateTransaction = props => {
+    const { transactionId } = useLocalSearchParams();
+    const id = transactionId ? parseInt(transactionId, 10) : null; // Ensure id is a number
     const { categories, actions } = useContext(finContext)
     const addTemplateTransaction = actions.addTemplateTransaction;
-    const { templateId: templateIdParam } = useLocalSearchParams();
-    const templateId = templateIdParam ? parseInt(templateIdParam) : null;
     const [categoryId, setCategoryId] = useState(categories[1].id);
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
@@ -18,8 +18,23 @@ const TemplateTransaction = props => {
     const [isPositive, setIsPositive] = useState(true);
     const router = useRouter();
 
-    const scaleFontSize = (fontSize) => {
-        return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
+    useEffect(() => {
+        (async () => {
+            const templateTransaction = await actions.fetchTemplateTransaction(id);
+            console.log('Loaded template transaction:', templateTransaction);
+            if (templateTransaction) {
+                setCategoryId(templateTransaction.categoryId);
+                setName(templateTransaction.name);
+                setValue(Math.abs(templateTransaction.value).toString());
+                setDetails(templateTransaction.details);
+                setDateOffset(templateTransaction.dateOffset);
+                setIsPositive(templateTransaction.value > 0 ? true : false);
+            }
+        })();
+    }, []);
+
+    if (!transactionId) {
+        return (<Text>Template Transaction not found!</Text>);
     }
 
     return (
@@ -102,12 +117,13 @@ const TemplateTransaction = props => {
                     style={[styles.actionButton, { borderColor: 'green' }]}
                     onPress={async () => {
                         if (/^[0-9]+(\.[0-9]{1,2})?$/g.test(value)) {
-                            await addTemplateTransaction({
+                            await actions.updateTemplateTransaction({
+                                id: id,
                                 name: name,
                                 value: isPositive ? value : -1 * value,
                                 details: details,
                                 dateOffset: dateOffset,
-                                templateId: templateId,
+                                transactionId: transactionId,
                                 categoryId: categoryId
                             })
                             router.dismiss();
