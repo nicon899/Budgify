@@ -1,9 +1,11 @@
 import DatePicker from "@/components/DatePicker";
 import { finContext } from "@/contexts/FinContext";
+import { scaleFontSize } from "@/util/util";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useContext, useEffect, useState } from "react";
-import { Alert, Dimensions, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Text, TextInput, TouchableOpacity, View } from "react-native";
 import TemplateTransactionItem from "../../components/TemplateTransactionItem";
 
 const TemplatesScreen = () => {
@@ -14,10 +16,8 @@ const TemplatesScreen = () => {
   const [templateTransactions, setTemplateTransactions] = useState([]);
   const router = useRouter();
   const [date, setDate] = useState(new Date());
-
-  const scaleFontSize = (fontSize) => {
-    return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
-  }
+  const [name, setName] = useState('');
+  const isFocused = useIsFocused();
 
   const executeTemplateDialog = () => {
     Alert.alert(
@@ -34,16 +34,17 @@ const TemplatesScreen = () => {
   const executeTemplate = () => {
     for (const transaction of templateTransactions) {
       const executionDate = transaction.executionDate ? transaction.executionDate : date;
-      actions.addTransaction({ name: transaction.name, value: transaction.value, details: transaction.details, date: executionDate, categoryId: transaction.categoryId });
+      actions.addTransaction({ name: transaction.name ? transaction.name : name, value: transaction.value, details: transaction.details, date: executionDate, categoryId: transaction.categoryId });
     }
   }
 
   useEffect(() => {
+    if (!isFocused) return;
     (async () => {
       const fetchedTemplateTransactions = await actions.fetchTemplateTransactions(templateId);
       setTemplateTransactions(fetchedTemplateTransactions);
     })();
-  }, [templateId]);
+  }, [templateId, isFocused]);
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -66,6 +67,18 @@ const TemplatesScreen = () => {
         setDate={setDate}
         setTime={false}
       />
+
+      <TextInput
+        placeholder='Default Name'
+        placeholderTextColor="grey"
+        style={[styles.input, { marginBottom: 25 }]}
+        blurOnSubmit
+        autoCapitalize="none"
+        autoCorrect={false}
+        value={name}
+        onChangeText={(input) => setName(input)}
+      />
+
       <FlatList
         data={templateTransactions}
         keyExtractor={item => `${item.id}`}
@@ -73,7 +86,7 @@ const TemplatesScreen = () => {
           return (<TemplateTransactionItem
             id={itemData.item.id}
             categoryId={itemData.item.categoryId}
-            name={itemData.item.name}
+            name={itemData.item.name ? itemData.item.name : name}
             value={itemData.item.value}
             date={date}
             dateOffset={itemData.item.dateOffset}
@@ -103,6 +116,14 @@ const TemplatesScreen = () => {
 const styles = {
   dateInput: {
     borderColor: 'grey',
+    color: 'white',
+    borderRadius: 5,
+  },
+  input: {
+    width: '75%',
+    padding: 3,
+    borderColor: 'grey',
+    borderWidth: 1,
     color: 'white',
     borderRadius: 5,
   },

@@ -1,9 +1,11 @@
 import CategoryPicker from '@/components/CategoryPicker';
 import { finContext } from '@/contexts/FinContext';
-import { AntDesign } from '@expo/vector-icons';
+import { scaleFontSize } from '@/util/util';
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
+
 
 const TemplateTransaction = props => {
     const { transactionId } = useLocalSearchParams();
@@ -40,6 +42,28 @@ const TemplateTransaction = props => {
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
+
+                <View style={styles.topBar}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            Alert.alert(
+                                'Delete Template Transaction',
+                                'This Template Transaction will be removed for good!',
+                                [{ text: 'Cancel', style: 'cancel' },
+                                {
+                                    text: 'OK', onPress: async () => {
+                                        await actions.deleteTemplateTransaction(id)
+                                        router.setParams({ refresh: Date.now() });
+                                        router.dismiss();
+                                    }
+                                },
+                                ], { cancelable: true }
+                            )
+                        }}
+                    >
+                        <MaterialCommunityIcons name="delete" size={scaleFontSize(48)} color="red" />
+                    </TouchableOpacity>
+                </View>
 
                 <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
 
@@ -151,6 +175,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'black',
         paddingTop: 20,
+    },
+    topBar: {
+        // height: '10%',
+        padding: 5,
+        alignItems: 'flex-end'
     },
     input: {
         width: '75%',
