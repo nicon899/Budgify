@@ -1,5 +1,6 @@
+import theme from '@/app/theme';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const BookingItem = props => {
 
@@ -36,7 +37,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 5,
         borderBottomColor: '#333333',
         borderBottomWidth: 0.5,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        color: theme.colors.primary_text,
     }
 });
 

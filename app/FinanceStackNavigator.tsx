@@ -22,11 +22,11 @@ export default function FinanceStackNavigator() {
     return (
         <Stack>
             <Stack.Screen name="index" options={{ title: 'Home', headerShown: false, }} />
+            <Stack.Screen name="category/[categoryId]/index" options={{ title: 'Edit Category', headerShown: false }} />
+            <Stack.Screen name="category/[categoryId]/create" options={{ title: 'Create Category', headerShown: false }} />
             <Stack.Screen name="[categoryId]/booking/create" options={{ title: 'Create Booking' }} />
             <Stack.Screen name="[categoryId]/booking/[bookingId]" options={{ title: 'Booking Details', headerShown: false }} />
             <Stack.Screen name="[categoryId]/booking/[bookingId]/edit" options={{ title: 'Edit Booking', headerShown: false }} />
-            <Stack.Screen name="category/[categoryId]/create" options={{ title: 'Create Category', headerShown: false }} />
-            <Stack.Screen name="category/[categoryId]" options={{ title: 'Edit Category', headerShown: false }} />
             <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: false, }} />
             <Stack.Screen name="templates" options={{ title: 'Templates', headerShown: false, }} />
             <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: false }} />

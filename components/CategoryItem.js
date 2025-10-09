@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import theme from '@/app/theme';
+import { FONT_SIZE_LARGE } from '@/util/util';
+import React from 'react';
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 
 const CategoryItem = props => {
@@ -19,8 +21,8 @@ const CategoryItem = props => {
             }}
         >
             <View style={styles.item}>
-                <Text numberOfLines={1} style={{ color: 'white', fontSize: scaleFontSize(32), fontWeight: 'bold' }}>{props.item.name} </Text>
-                <Text numberOfLines={1} style={{ color: props.item.value > 0 ? 'green' : 'red', fontSize: scaleFontSize(28), fontFamily: 'JetBrainsMono' }}>{round(props.item.value)}</Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} style={styles.name}>{props.item.name} </Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} style={[styles.value, { color: props.item.value > 0 ? theme.colors.positive_text : theme.colors.negative_text }]}>{round(props.item.value)}</Text>
             </View>
 
         </TouchableOpacity>
@@ -28,13 +30,22 @@ const CategoryItem = props => {
 };
 
 const styles = StyleSheet.create({
+    name: {
+        color: theme.colors.primary_text,
+        fontSize: FONT_SIZE_LARGE,
+        fontWeight: 'bold',
+        maxWidth: '70%',
+    },
+    value: {
+        fontSize: FONT_SIZE_LARGE, 
+        fontFamily: 'JetBrainsMono'
+    },
     item: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        paddingRight: 10,
-        paddingLeft: 5
+        color: theme.colors.primary_text,
     }
 });
 

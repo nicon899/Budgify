@@ -1,10 +1,11 @@
+import CategoryPicker from '@/components/CategoryPicker';
+import { scaleFontSize } from '@/util/util';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useContext, useEffect, useState } from 'react';
-import { Alert, Dimensions, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import DraggableFlatList from "react-native-draggable-flatlist";
-import CategoryPicker from '../../components/CategoryPicker';
-import { finContext } from '../../contexts/FinContext';
+import React, { useContext, useEffect, useState } from 'react';
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import DragList from 'react-native-draglist';
+import { finContext } from '../../../contexts/FinContext';
 
 const EditCategory = () => {
     const { categoryId: categoryIdParam } = useLocalSearchParams();
@@ -43,8 +44,12 @@ const EditCategory = () => {
         await updateCategory(updatedCategory);
     };
 
-    const scaleFontSize = (fontSize) => {
-        return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
+
+    const onReordered = async (fromIndex: number, toIndex: number) => {
+        const copy = [...childCategories]; // Don't modify react data in-place
+        const removed = copy.splice(fromIndex, 1);
+        copy.splice(toIndex, 0, removed[0]); // Now insert at the new pos
+        setChildCategories(copy)
     }
 
     return (
@@ -102,15 +107,14 @@ const EditCategory = () => {
 
                     {categoryId !== -1 && <CategoryPicker categoryId={categoryParentId} setCategoryId={setCategoryParentId} noFilter={true} />}
                     <View style={{ flex: 1, width: '100%' }}>
-                        <DraggableFlatList
+                        <DragList
                             data={childCategories}
                             style={{ backgroundColor: '#202020', marginHorizontal: 25, borderRadius: 10, padding: 5 }}
-                            onDragBegin={() => setIsOrderChanged(true)}
                             keyExtractor={(item, index) => `${item.id}`}
-                            renderItem={({ item, index, drag, isActive }) =>
+                            renderItem={({ item, onDragStart, onDragEnd, isActive }) =>
                             (<TouchableOpacity
                                 style={{
-                                    backgroundColor: isActive ? "#0000FF80" : '#303030',
+                                    backgroundColor: isActive ? "#606060" : '#303030',
                                     marginHorizontal: 10,
                                     marginVertical: 3,
                                     padding: 5,
@@ -119,7 +123,8 @@ const EditCategory = () => {
                                     borderColor: 'white',
                                     borderWidth: 1
                                 }}
-                                onLongPress={drag}
+                                onPressIn={() => { setIsOrderChanged(true); onDragStart() }}
+                                onPressOut={onDragEnd}
                             >
                                 <Text
                                     style={{
@@ -132,7 +137,7 @@ const EditCategory = () => {
                                 </Text>
                             </TouchableOpacity>)
                             }
-                            onDragEnd={(data) => setChildCategories(data.data)}
+                            onReordered={onReordered}
                         />
                     </View>
                 </View>

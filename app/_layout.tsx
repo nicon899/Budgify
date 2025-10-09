@@ -7,6 +7,7 @@ import { AppDatabaseProvider } from '@/components/AppDatabaseProvider';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import FinanceStackNavigator from './FinanceStackNavigator';
+import theme from './theme';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -15,7 +16,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AppDatabaseProvider>
         <FinProvider>
-          <SafeAreaView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#000' : '#fff' }}>
+          <SafeAreaView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? theme.colors.background : '#fff'}}>
             <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
             <GestureHandlerRootView>
               <FinanceStackNavigator />
