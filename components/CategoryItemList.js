@@ -13,7 +13,7 @@ const CategoryItemList = props => {
                     if (!itemData.item.categoryId) {
                         return <CategoryItem showContent={(id) => props.showCategory(id)} item={itemData.item} />
                     } else {
-                        return <BookingItem showBooking={(id) => props.showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} date={itemData.item.date} isMarginTop={itemData.item.id === props.bookings[0].id} />
+                        return <BookingItem showBooking={(id) => props.showBooking(id)} id={itemData.item.id} name={itemData.item.name} value={itemData.item.value} date={itemData.item.date} />
                     }
                 }}
             />

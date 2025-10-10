@@ -1,26 +1,16 @@
+import theme, { FONT_SIZE_LARGE } from '@/app/theme';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const DatePicker = props => {
-
-    const scaleFontSize = (fontSize) => {
-        return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
-    }
-
     const [show, setShow] = useState(false);
 
     const dateText = ""
         + (props.date.getDate() < 10 ? "0" + props.date.getDate() : props.date.getDate()) + "."
         + (props.date.getMonth() < 9 ? "0" + (props.date.getMonth() + 1) : (props.date.getMonth() + 1)) + "."
         + props.date.getFullYear();
-
-    const getTime = () => {
-        let hours = props.date.getHours().toString();
-        let minutes = props.date.getMinutes().toString();
-        return (hours.length === 1 ? '0' + hours : hours) + ':' + (minutes.length === 1 ? '0' + minutes : minutes);
-    }
 
     return (
         <View style={[styles.datepicker, props.style]}>
@@ -35,10 +25,10 @@ const DatePicker = props => {
             </TouchableOpacity>}
 
             <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
-                <Ionicons style={{ marginRight: '10%' }} name="calendar" size={scaleFontSize(30)} color="#295184" />
-                <View>
-                    <Text style={{ color: 'white', fontSize: scaleFontSize(22), fontWeight: 'bold' }} >{dateText}</Text>
-                </View>
+                <Ionicons style={{ marginRight: '10%' }} name="calendar" size={FONT_SIZE_LARGE} color={theme.colors.primary_text} />
+               {props.showDate && <View>
+                    <Text style={{ color: 'white', fontSize: FONT_SIZE_LARGE, fontWeight: 'bold' }} >{dateText}</Text>
+                </View>}
             </TouchableOpacity>
 
             {props.showArrow !== false && <TouchableOpacity
@@ -61,6 +51,7 @@ const DatePicker = props => {
                     onChange={(event, date) => {
                         setShow(false);
                         if (date != undefined) {
+                            console.log(date);
                             props.setDate(date);
                         }
                     }}
