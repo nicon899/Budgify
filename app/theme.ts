@@ -18,6 +18,7 @@ const theme = {
         secondary_text: '#A0A0A0',
         positive_text: '#00E676',
         negative_text: '#FF5252',
+        blue_text: '#2196F3',
         icons: '#8E8E8E',
         accent: '#BB86FC',
     },
@@ -26,6 +27,16 @@ const theme = {
         medium: 'Roboto-Medium',
         bold: 'Roboto-Bold',
     },
+    fontSize: {
+        mini: FONT_SIZE_MINI,
+        small: FONT_SIZE_SMALL,
+        regular: FONT_SIZE_REGULAR,
+        large: FONT_SIZE_LARGE,
+        xlarge: FONT_SIZE_XLARGE,
+        xxlarge: FONT_SIZE_XXLARGE,
+        xxxlarge: FONT_SIZE_XXXLARGE,
+    },
+
 }
 
 export default theme;

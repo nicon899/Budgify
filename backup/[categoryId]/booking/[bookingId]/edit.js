@@ -1,7 +1,7 @@
 import { AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import { Alert, Dimensions, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 import CategoryPicker from '../../../../components/CategoryPicker';
 import DatePicker from '../../../../components/DatePicker';
 import { finContext } from '../../../../contexts/FinContext';
@@ -23,14 +23,10 @@ const EditScreen = props => {
         return (<Text>Booking not found!</Text>);
     }
 
-    const scaleFontSize = (fontSize) => {
-        return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
-    }
-
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
-                <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: scaleFontSize(42) }}>Edit Booking</Text>
+                <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: FONT_SIZE_XLARGE }}>Edit Booking</Text>
 
                 <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
 

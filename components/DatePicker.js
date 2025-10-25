@@ -26,9 +26,9 @@ const DatePicker = props => {
 
             <TouchableOpacity style={styles.btn} onPress={() => setShow(true)}>
                 <Ionicons style={{ marginRight: '10%' }} name="calendar" size={FONT_SIZE_LARGE} color={theme.colors.primary_text} />
-               {props.showDate && <View>
+               <View>
                     <Text style={{ color: 'white', fontSize: FONT_SIZE_LARGE, fontWeight: 'bold' }} >{dateText}</Text>
-                </View>}
+                </View>
             </TouchableOpacity>
 
             {props.showArrow !== false && <TouchableOpacity
