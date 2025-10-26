@@ -10,7 +10,7 @@ export default function FinanceStackNavigator() {
         'JetBrainsMono-Bold': require('../../assets/fonts/JetBrainsMono-Bold.ttf'),
     });
     const auth = useContext(authContext);
-    
+
     // const context = useContext(finContext);
     if (!fontsLoaded) {
         return (
@@ -33,7 +33,8 @@ export default function FinanceStackNavigator() {
 
     return (
         <Stack >
-            <Stack.Screen name="index" options={{ headerShown: false, title: 'Home' }} />
+            <Stack.Screen name="index" options={{ headerShown: false, title: 'Index' }} />
+            <Stack.Screen name="category/[categoryId]/index" options={{ headerShown: false, title: 'Home' }} />
             {/* <Stack.Screen name="category/[categoryId]/index" options={{ title: 'Edit Category', headerShown: false }} /> */}
             {/* <Stack.Screen name="category/[categoryId]/create" options={{ title: 'Create Category', headerShown: false }} /> */}
             {/* <Stack.Screen name="[categoryId]/booking/create" options={{ title: 'Create Booking' }} /> */}

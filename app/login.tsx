@@ -71,7 +71,8 @@ const styles = StyleSheet.create({
         padding: 3,
         borderColor: 'grey',
         borderWidth: 1,
-        color: 'white'
+        color: 'white',
+        borderRadius: 5,
     },
     loginButton: {
         color: theme.colors.blue_text,

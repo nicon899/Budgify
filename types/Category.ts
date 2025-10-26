@@ -1,6 +1,8 @@
 export type Category = {
     id: number;
     name: string;
-    listIndex: number;
+    total: number;
     parentId: number | null;
+    children?: Category[];
+    transactions: any[];
 }

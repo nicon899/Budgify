@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/util/dataManager';
+import { BASE_URL } from '@/hooks/useApi';
 import React, { useContext, useEffect, useState } from 'react';
 import { storageService } from '../util/StorageService';
 
@@ -30,6 +30,7 @@ export type AuthContext = {
     token: string | null;
     actions: {
         login: (options: LoginOptions) => Promise<string | null>;
+        refreshToken: () => Promise<void>;
         register: (options: RegisterOptions) => Promise<void>;
         getTokenData: () => JWTTokenData | null;
         logout: () => void;
@@ -40,6 +41,7 @@ export const initialAuthContext = {
     actions: {
         getTokenData: () => null,
         login: async () => undefined,
+        refreshToken: async () => undefined,
         logout: () => undefined,
         register: async () => undefined,
     },
@@ -52,6 +54,7 @@ export const AuthProvider = ({ children }) => {
     const [token, _setToken] = useState<string | null>(null);
 
     const setToken = async (newToken: string | null) => {
+        console.log('Setting token:', newToken);
         await storageService.setItem('auth-token', newToken);
         _setToken(newToken);
     };
@@ -72,6 +75,15 @@ export const AuthProvider = ({ children }) => {
         fetchToken();
     }, []);
 
+    const refreshToken = async () => {
+        const userLoginOptions = await storageService.getItem('user-login-options');
+        if (userLoginOptions) {
+            const parsedOptions: LoginOptions = JSON.parse(userLoginOptions);
+            return login(parsedOptions);
+        }
+        setToken(null);
+    }
+
     const login = async (values: LoginOptions) => {
         const loginRequest = await fetch(`${BASE_URL}/user/login`, {
             body: JSON.stringify(values),
@@ -82,10 +94,10 @@ export const AuthProvider = ({ children }) => {
         });
 
         if (loginRequest.status === 200) {
-            const { data } = await loginRequest.json();
-            const token = data.token
+            const { token } = await loginRequest.json();
+            // const token = data.token
             setToken(token);
-            return data;
+            return token;
         } else {
             return null;
         }
@@ -129,6 +141,7 @@ export const AuthProvider = ({ children }) => {
                     login,
                     logout,
                     register,
+                    refreshToken
                 },
                 token,
             }

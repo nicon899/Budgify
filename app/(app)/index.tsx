@@ -1,9 +1,7 @@
-import { Text, View } from 'react-native';
+// redirect to app/(app)/category/[categoryId]/index.tsx
+import CategoryScreen from './category/[categoryId]';
 
-const CategoryScreen = () => {
-    return (<View>
-        <Text style={{ color: 'white', fontSize: 24 }}>Test </Text>
-    </View>);
-};
-
-export default CategoryScreen;
+export default function Index() {
+    
+  return <CategoryScreen />;
+}

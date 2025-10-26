@@ -18,7 +18,7 @@ const CategoryItem = props => {
         >
             <View style={styles.item}>
                 <Text adjustsFontSizeToFit numberOfLines={1} style={styles.name}>{props.item.name} </Text>
-                <Text adjustsFontSizeToFit numberOfLines={1} style={[styles.value, { color: props.item.value > 0 ? theme.colors.positive_text : theme.colors.negative_text }]}>{round(props.item.value)}</Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} style={[styles.value, { color: props.item.total > 0 ? theme.colors.positive_text : props.item.total === 0 ? theme.colors.primary_text : theme.colors.negative_text }]}>{round(props.item.total)}</Text>
             </View>
 
         </TouchableOpacity>
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
         maxWidth: '70%',
     },
     value: {
-        fontSize: FONT_SIZE_LARGE, 
+        fontSize: FONT_SIZE_LARGE,
         fontFamily: 'JetBrainsMono'
     },
     item: {
