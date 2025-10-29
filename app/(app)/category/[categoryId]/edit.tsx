@@ -1,61 +1,65 @@
 import CategoryPicker from '@/components/CategoryPicker';
+import { useApi } from '@/hooks/useApi';
+import { Category } from '@/types/Category';
 import { scaleFontSize } from '@/util/util';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DragList from 'react-native-draglist';
-import { finContext } from '../../../contexts/FinContext';
 
 const EditCategory = () => {
-    const { categoryId: categoryIdParam } = useLocalSearchParams();
-    const categoryId = categoryIdParam === 'null' ? null : parseInt(categoryIdParam);
-    const { categories, transactions, actions } = useContext(finContext);
-    const [childCategories, setChildCategories] = useState([]);
+    const { categoryId: categoryIdParamStr } = useLocalSearchParams();
+    const categoryIdParam = categoryIdParamStr ? parseInt(categoryIdParamStr as string, 10) : null;
+    const [category, setCategory] = useState<Category | null>(null);
     const [isOrderChanged, setIsOrderChanged] = useState(false);
-    const [name, setName] = useState('');
-    const { updateCategory, deleteCategory } = useContext(finContext).actions
-    const [categoryParentId, setCategoryParentId] = useState();
+    const { updateCategory, deleteCategory } = useApi();
     const router = useRouter();
+    const { getCategoryById } = useApi()
 
     useEffect(() => {
-        const categoryToUpdate = categories.find(c => c.id === categoryId);
-        if (!categoryToUpdate) return;
-        setChildCategories(categories.filter((category) => category.id !== null && category.parentId === categoryId).sort((a, b) => a.index > b.index ? 1 : a.index < b.index ? -1 : 0));
-        setCategoryParentId(categoryToUpdate.parentId)
-        setName(categoryToUpdate.name);
-    }, [categories]);
+        console.log("USE EFFFFFECCCTTT")
+        if (!categoryIdParam) return;
+        (async () => {
+            const loadedCategory = await getCategoryById(categoryIdParam);
+            if (!loadedCategory) return;
+            setCategory(loadedCategory)
+        })()
+    }, []);
 
+    // TODO: Update Indexes when changing subcategory order
     const updateIndexes = async () => {
-        let index = 0;
-        childCategories.forEach(cat => {
-            cat.index = index;
-            index++;
-        });
-        childCategories.forEach(async (cat) => {
-            await updateCategory(cat);
-        })
+        // let index = 0;
+        // childCategories.forEach(cat => {
+        //     cat.index = index;
+        //     index++;
+        // });
+        // childCategories.forEach(async (cat) => {
+        //     await updateCategory(cat);
+        // })
     };
 
     const update = async () => {
-        const updatedCategory = categories.find(c => c.id === categoryId);
-        updatedCategory.name = name;
-        updatedCategory.parentId = categoryParentId;
-        await updateCategory(updatedCategory);
+        if (!category) return;
+        await updateCategory(category);
     };
 
-
     const onReordered = async (fromIndex: number, toIndex: number) => {
-        const copy = [...childCategories]; // Don't modify react data in-place
+        if (!category?.children) return;
+        const copy = [...category.children];
         const removed = copy.splice(fromIndex, 1);
-        copy.splice(toIndex, 0, removed[0]); // Now insert at the new pos
-        setChildCategories(copy)
+        copy.splice(toIndex, 0, removed[0]);
+        setCategory({ ...category, children: copy })
+    }
+
+    if (!category) {
+        return <></>;
     }
 
     return (
         <View style={styles.screen}>
             <View style={{ width: '100%', height: '90%' }}>
-                {categoryId !== null && <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                {category.id !== null && <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                     <View style={styles.nameInputContainer}>
                         <TextInput
                             placeholder='Name'
@@ -64,8 +68,8 @@ const EditCategory = () => {
                             blurOnSubmit
                             autoCapitalize="none"
                             autoCorrect={false}
-                            value={name}
-                            onChangeText={(input) => { setName(input) }}
+                            value={category.name}
+                            onChangeText={(input) => { setCategory({...category, name: input}) }}
                         />
                     </View>
                     <TouchableOpacity
@@ -77,8 +81,10 @@ const EditCategory = () => {
                                     { text: 'Cancel', style: 'cancel' },
                                     {
                                         text: 'OK', onPress: async () => {
-                                            await deleteCategory(categoryId)
-                                            router.replace(`?categoryId=${categoryParentId}`);
+                                            await deleteCategory(category.id)
+                                            if (category.parentId) {
+                                                return router.replace(`?categoryId=${category.parentId}`);
+                                            }
                                         }
                                     },
                                 ],
@@ -92,23 +98,23 @@ const EditCategory = () => {
                 }
                 <View style={{
                     width: '100%',
-                    height: categoryId === null ? '100%' : '90%',
+                    height: category.id === null ? '100%' : '90%',
                 }}>
                     <View style={styles.bookingsheader}>
                         <Text style={{ color: 'white', fontSize: scaleFontSize(32), fontWeight: 'bold' }}>Categories:</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                router.navigate(`/category/${categoryId}/create?index=${childCategories.length}`);
+                                router.navigate(`/category/${category.id}/create?index=${category.children.length}`);
                             }}
                         >
                             <MaterialIcons style={{ marginRight: '10%' }} name="library-add" size={28} color="#00FF00" />
                         </TouchableOpacity>
                     </View>
 
-                    {categoryId !== -1 && <CategoryPicker categoryId={categoryParentId} setCategoryId={setCategoryParentId} noFilter={true} />}
+                    {category.id !== -1 && <CategoryPicker categoryId={category.id} setCategoryId={(input: number) => {setCategory({...category, parentId: input})}} noFilter={true} />}
                     <View style={{ flex: 1, width: '100%' }}>
-                        <DragList
-                            data={childCategories}
+                        {category.children && <DragList
+                            data={category.children}
                             style={{ backgroundColor: '#202020', marginHorizontal: 25, borderRadius: 10, padding: 5 }}
                             keyExtractor={(item, index) => `${item.id}`}
                             renderItem={({ item, onDragStart, onDragEnd, isActive }) =>
@@ -138,7 +144,7 @@ const EditCategory = () => {
                             </TouchableOpacity>)
                             }
                             onReordered={onReordered}
-                        />
+                        />}
                     </View>
                 </View>
             </View>

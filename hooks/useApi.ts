@@ -1,4 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { Category } from "@/types/Category";
 
 export const BASE_URL = "http://localhost:3000/api";
 
@@ -39,9 +40,46 @@ export function useApi() {
         return res.json();
     }
 
+    const getPossibleParents = async (categoryId: number) => {
+        const res = await fetch(`${BASE_URL}/category/${categoryId}/possibleParents`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'GET',
+        });
+        return res.json();
+    }
+
+    const updateCategory = async (category: Category) => {
+        const res = await fetch(`${BASE_URL}/category/${category.id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'PATCH',
+            body: JSON.stringify(category)
+        });
+        return res.json();
+    }
+
+    const deleteCategory = async (categoryId: number) => {
+        const res = await fetch(`${BASE_URL}/category/${categoryId}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'DELETE',
+        });
+        return res.json();
+    }
+
     return {
         getFirstLevelCategories,
         getCategoryById,
+        updateCategory,
+        deleteCategory,
+        getPossibleParents
     };
 }
 

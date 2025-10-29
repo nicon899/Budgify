@@ -105,7 +105,7 @@ const CategoryScreen = () => {
                     style={styles.header_inner}
                     disabled={category.id == null}
                     onPress={() => {
-                        router.navigate(`/edit`);
+                        router.navigate(`/category/${category.id}/edit`);
                     }}
                 >
                     <Text style={styles.header_route}>Test/Test/Test</Text>
