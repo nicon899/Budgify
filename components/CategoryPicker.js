@@ -9,7 +9,14 @@ const CategoryPicker = props => {
 
     useEffect(() => {
         (async () => {
-            const selectableCategories = await getPossibleParents(props.categoryId)
+            const selectableCategories = []
+            if (props.filterChildCategories) {
+                const fetchedCategories = await getPossibleParents(props.categoryId)
+                selectableCategories.push(...fetchedCategories)
+            } else {
+                const fetchedCategories = await getPossibleParents(props.categoryId)
+                selectableCategories.push(...fetchedCategories)
+            }
 
             const newPickerItems = [];
             selectableCategories.sort((a, b) => {

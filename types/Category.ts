@@ -4,5 +4,5 @@ export type Category = {
     total: number;
     parentId: number | undefined;
     children?: Category[];
-    transactions: any[];
+    latestDate?: string
 }

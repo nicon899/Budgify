@@ -2,7 +2,9 @@ import CategoryItemList from '@/components/CategoryItemList';
 import CustomDatePicker from '@/components/CustomDatePicker';
 import { useApi } from '@/hooks/useApi';
 import { Category } from '@/types/Category';
+import { Transaction } from '@/types/Transaction';
 import { FontAwesome6 } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -13,37 +15,53 @@ const CategoryScreen = () => {
     const { categoryId: categoryIdParamStr } = useLocalSearchParams();
     const categoryIdParam = categoryIdParamStr ? parseInt(categoryIdParamStr as string, 10) : null;
     const [category, setCategory] = useState<Category | null>(null);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
     const router = useRouter();
     const [visible, setVisible] = useState(false);
-    const [date, setDate] = useState(new Date());
-    const [didUserSetDate, setDidUserSetDate] = useState<boolean>(false);
-    const { getFirstLevelCategories, getCategoryById } = useApi();
+    const [date, _setDate] = useState<Date>(new Date());
+    const { getFirstLevelCategories, getCategoryById, getLatestDate, getTransactionsOfCategory } = useApi();
+    const isFocused = useIsFocused();
+
+    console.log(date)
 
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
 
-    const setLatestDate = () => {
-        // TODO
+    const setLatestDate = async () => {
+        const latestDate = await getLatestDate()
+        console.log(latestDate)
+        setDate(latestDate, true);
+    }
+
+    const updateData = async (newDate: Date | null) => {
+        const category = categoryIdParam ? await getCategoryById(categoryIdParam, newDate?.toISOString()) : await getFirstLevelCategories(newDate?.toISOString())
+        setCategory(category)
+        console.log(category)
+        if (categoryIdParam) {
+            const fetchedTransactions = await getTransactionsOfCategory(categoryIdParam, newDate?.toISOString())
+            setTransactions(fetchedTransactions);
+        }
+        if (!newDate) {
+            setDate(new Date(category.latestDate))
+        }
+    }
+
+    const setDate = (newDate: Date, setByUser: boolean = false) => {
+        _setDate(newDate);
+        if (setByUser) {
+            updateData(newDate);
+        }
     }
 
     const openCategory = (id: number) => {
         console.log(id)
-        if(id == null) return
-        router.replace(`/category/${id}`);
+        if (id == null) return
+        router.navigate(`/category/${id}`);
     }
 
     useEffect(() => {
-        (async () => {
-            if (categoryIdParam) {
-                const category = await getCategoryById(categoryIdParam);
-                setCategory(category);
-                return;
-            }
-            const category = await getFirstLevelCategories();
-            console.log('First level categories:', category);
-            setCategory(category);
-        })();
-    }, [categoryIdParam])
+        updateData(null);
+    }, [categoryIdParam, isFocused])
 
     if (!category) {
         return <></>;
@@ -67,14 +85,14 @@ const CategoryScreen = () => {
                     style={{}}
                     style_btn={styles.toolbar_button}
                     date={date}
-                    setDate={setDate}
+                    setDate={(date: Date) => setDate(date, true)}
                     setTime={false}
                     showArrow={false}
                     text={'Custom'}
                 />
                 <TouchableOpacity
                     style={styles.toolbar_button}
-                    onPress={() => setDate(new Date())}
+                    onPress={() => setDate(new Date(), true)}
                 >
                     <Text style={styles.toolbar_button_text}>Today</Text>
                 </TouchableOpacity>
@@ -120,7 +138,7 @@ const CategoryScreen = () => {
             <View style={{ flex: 1 }}>
                 <CategoryItemList
                     style={styles.categoryList}
-                    bookings={category.transactions ? category.transactions : []}
+                    bookings={transactions}
                     categories={category.children ? category.children : []}
                     showBooking={(id: number) => router.navigate(`${category.id}/booking/${id}`)}
                     showCategory={(id: number) => openCategory(id)}
@@ -128,24 +146,19 @@ const CategoryScreen = () => {
                 />
             </View>
         </View >
-        {/* <View style={styles.transBar}>
-                {selectedCategory.id !== null && <TouchableOpacity
-                    style={[styles.transButton, { borderColor: '#00FF00', backgroundColor: '#00FF00' }]}
+
+        <View style={styles.transBar}>
+            {category.id !== null && (
+                <TouchableOpacity
+                    style={styles.transButton}
                     onPress={() => {
-                        router.navigate(`${selectedCategory.id}/booking/create?isPositive=true`);
+                        router.navigate(`category/${category.id}/transaction/create?isPositive=false`);
                     }}
                 >
-                    <Text style={{ color: 'white' }}>+</Text>
-                </TouchableOpacity>}
-                {selectedCategory.id !== null && <TouchableOpacity
-                    style={[styles.transButton, { borderColor: '#FF0000', backgroundColor: '#FF0000' }]}
-                    onPress={() => {
-                        router.navigate(`${selectedCategory.id}/booking/create?isPositive=false`);
-                    }}
-                >
-                    <Text style={{ color: 'white' }}>-</Text>
-                </TouchableOpacity>}
-            </View> */}
+                    <Text style={styles.transButtonText}>€</Text>
+                </TouchableOpacity>
+            )}
+        </View>
     </PaperProvider>);
 };
 
@@ -220,6 +233,31 @@ const styles = StyleSheet.create({
         marginTop: 10,
         paddingVertical: 10,
     },
+    transBar: {
+        position: 'absolute',
+        bottom: 30, // Abstand vom unteren Bildschirmrand
+        right: 30,  // Abstand vom rechten Rand
+    },
+    transButton: {
+        width: 60,
+        height: 60,
+        borderRadius: 30, // Hälfte der Breite/Höhe für einen Kreis
+        backgroundColor: theme.colors.accent,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5, // für Android Schatten
+        shadowColor: '#000', // für iOS Schatten
+        shadowOpacity: 0.3,
+        shadowOffset: { width: 0, height: 3 },
+        shadowRadius: 4,
+    },
+    transButtonText: {
+        color: 'white',
+        fontSize: 28,
+        fontWeight: 'bold',
+        lineHeight: 32,
+    },
+
 });
 
 export default CategoryScreen;

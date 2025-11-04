@@ -111,7 +111,7 @@ const EditCategory = () => {
                         </TouchableOpacity>
                     </View>
 
-                    {category.id !== -1 && <CategoryPicker categoryId={category.id} setCategoryId={(input: number) => {setCategory({...category, parentId: input})}} noFilter={true} />}
+                    {category.id !== -1 && <CategoryPicker categoryId={category.id} setCategoryId={(input: number) => {setCategory({...category, parentId: input})}} noFilter={true} filterChildCategories={true}/>}
                     <View style={{ flex: 1, width: '100%' }}>
                         {category.children && <DragList
                             data={category.children}
