@@ -4,11 +4,13 @@ import BookingItem from './BookingItem';
 import CategoryItem from './CategoryItem';
 
 const CategoryItemList = props => {
+    console.log("List")
+    console.log(props.categories)
     return (
         <View style={props.style}>
             <FlatList
-                data={props.categories.concat(props.bookings)}
-                keyExtractor={item => `${item.id}`}
+                data={[...props.categories, ...props.bookings]}
+                keyExtractor={item => `${item.categoryId ? 'transaction' : 'category'}_${item.id}`}
                 renderItem={itemData => {
                     if (!itemData.item.categoryId) {
                         return <CategoryItem showContent={(id) => props.showCategory(id)} item={itemData.item} />

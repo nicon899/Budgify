@@ -18,7 +18,6 @@ const EditCategory = () => {
     const { getCategoryById } = useApi()
 
     useEffect(() => {
-        console.log("USE EFFFFFECCCTTT")
         if (!categoryIdParam) return;
         (async () => {
             const loadedCategory = await getCategoryById(categoryIdParam);
@@ -29,14 +28,15 @@ const EditCategory = () => {
 
     // TODO: Update Indexes when changing subcategory order
     const updateIndexes = async () => {
-        // let index = 0;
-        // childCategories.forEach(cat => {
-        //     cat.index = index;
-        //     index++;
-        // });
-        // childCategories.forEach(async (cat) => {
-        //     await updateCategory(cat);
-        // })
+        let index = 0;
+        if(!category?.children) return;
+        category.children.forEach(cat => {
+            cat.listIndex = index;
+            index++;
+        });
+        category.children.forEach(async (cat) => {
+            await updateCategory(cat);
+        })
     };
 
     const update = async () => {
@@ -83,7 +83,7 @@ const EditCategory = () => {
                                         text: 'OK', onPress: async () => {
                                             await deleteCategory(category.id)
                                             if (category.parentId) {
-                                                return router.replace(`?categoryId=${category.parentId}`);
+                                                return router.replace(`?categoryId=${parentId}`);
                                             }
                                         }
                                     },
@@ -104,14 +104,14 @@ const EditCategory = () => {
                         <Text style={{ color: 'white', fontSize: scaleFontSize(32), fontWeight: 'bold' }}>Categories:</Text>
                         <TouchableOpacity
                             onPress={() => {
-                                router.navigate(`/category/${category.id}/create?index=${category.children.length}`);
+                                router.navigate(`/category/create?parentId=${category.id}&listIndex=${category.children.length}`);
                             }}
                         >
                             <MaterialIcons style={{ marginRight: '10%' }} name="library-add" size={28} color="#00FF00" />
                         </TouchableOpacity>
                     </View>
 
-                    {category.id !== -1 && <CategoryPicker categoryId={category.id} setCategoryId={(input: number) => {setCategory({...category, parentId: input})}} noFilter={true} filterChildCategories={true}/>}
+                    <CategoryPicker categoryId={category.parentId} setCategoryId={(input: number) => {setCategory({...category, parentId: input})}} filterChildCategories={category.id}/>
                     <View style={{ flex: 1, width: '100%' }}>
                         {category.children && <DragList
                             data={category.children}
@@ -129,7 +129,7 @@ const EditCategory = () => {
                                     borderColor: 'white',
                                     borderWidth: 1
                                 }}
-                                onPressIn={() => { setIsOrderChanged(true); onDragStart() }}
+                                onPressIn={() => { onDragStart(); setIsOrderChanged(true); }}
                                 onPressOut={onDragEnd}
                             >
                                 <Text

@@ -54,7 +54,6 @@ export const AuthProvider = ({ children }) => {
     const [token, _setToken] = useState<string | null>(null);
 
     const setToken = async (newToken: string | null) => {
-        console.log('Setting token:', newToken);
         await storageService.setItem('auth-token', newToken);
         _setToken(newToken);
     };

@@ -1,38 +1,48 @@
+import { FONT_SIZE_XLARGE } from '@/app/theme';
+import CategoryPicker from '@/components/CategoryPicker';
+import DatePicker from '@/components/DatePicker';
+import { useApi } from '@/hooks/useApi';
+import { Transaction } from '@/types/Transaction';
 import { AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useContext, useState } from 'react';
-import { Alert, Dimensions, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
-import CategoryPicker from '../../../components/CategoryPicker';
-import DatePicker from '../../../components/DatePicker';
-import { finContext } from '../../../contexts/FinContext';
+import { useEffect, useState } from 'react';
+import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 
-const Booking = props => {
-    const { categoryId: categoryIdParam, isPositive: isPositiveParam } = useLocalSearchParams();
-    const [categoryId, setCategoryId] = useState(parseInt(categoryIdParam));
+
+const EditScreen = props => {
+    const { transactionId: transactionIdParamStr, isPositive: isPositiveParam } = useLocalSearchParams();
+    const transactionId = Number(transactionIdParamStr)
+    const [categoryId, setCategoryId] = useState<number | null>(null)
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
-    const [details, setDetails] = useState('');
+    const [detail, setDetail] = useState('');
     const [date, setDate] = useState(new Date());
     const [isPositive, setIsPositive] = useState(isPositiveParam === 'true');
-    const { addTransaction } = useContext(finContext).actions
+    const { getTransactionById, updateTransaction } = useApi()
     const router = useRouter();
 
-    const scaleFontSize = (fontSize) => {
-        return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
+    useEffect(() => {
+        (async () => {
+            const fetchedTransaction: Transaction = await getTransactionById(transactionId)
+            setCategoryId(fetchedTransaction.categoryId)
+            setName(fetchedTransaction.name)
+            setDetail(fetchedTransaction.detail)
+            setDate(fetchedTransaction.date)
+            setValue(String(Math.abs(fetchedTransaction.value)))
+            setIsPositive(fetchedTransaction.value > 0)
+        })()
+    }, [])
+
+    if (!transactionId || categoryId == null) {
+        return (<Text>Booking not found!</Text>);
     }
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
+                <Text style={{ color: 'white', marginBottom: 20, fontWeight: 'bold', fontSize: FONT_SIZE_XLARGE }}>Edit Booking</Text>
 
                 <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
-
-                <DatePicker
-                    style={styles.dateInput}
-                    date={date}
-                    setDate={setDate}
-                    setTime={false}
-                />
 
                 <TextInput
                     placeholder='Name'
@@ -43,6 +53,13 @@ const Booking = props => {
                     autoCorrect={false}
                     value={name}
                     onChangeText={(input) => setName(input)}
+                />
+
+                <DatePicker
+                    style={styles.dateInput}
+                    date={date}
+                    setDate={setDate}
+                    setTime={false}
                 />
 
                 <View style={styles.valueInput}>
@@ -71,10 +88,10 @@ const Booking = props => {
                     blurOnSubmit
                     autoCapitalize="none"
                     autoCorrect={false}
-                    value={details}
+                    value={detail}
                     numberOfLines={4}
                     multiline={true}
-                    onChangeText={(input) => setDetails(input)}
+                    onChangeText={(input) => setDetail(input)}
                 />
             </View>
 
@@ -83,6 +100,7 @@ const Booking = props => {
                     style={[styles.actionButton, { borderColor: 'red' }]}
                     onPress={() => {
                         router.dismiss();
+
                     }}
                 >
                     <Text style={{ color: 'red' }}>Cancel</Text>
@@ -92,10 +110,12 @@ const Booking = props => {
                     style={[styles.actionButton, { borderColor: 'green' }]}
                     onPress={async () => {
                         if (/^[0-9]+(\.[0-9]{1,2})?$/g.test(value)) {
-                            await addTransaction({
+
+                            await updateTransaction({
+                                id: transactionId,
                                 name: name,
-                                value: isPositive ? value : -1 * value,
-                                details: details,
+                                value: isPositive ? Number(value) : -1 * Number(value),
+                                detail: detail,
                                 date: date,
                                 categoryId: categoryId
                             })
@@ -155,4 +175,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Booking;
+export default EditScreen;

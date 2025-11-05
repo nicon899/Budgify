@@ -1,4 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { CategoryBody } from "@/types/ApiTypes";
 import { Category } from "@/types/Category";
 import { Transaction } from "@/types/Transaction";
 
@@ -13,7 +14,6 @@ export function useApi() {
 
     // CATEGORIES
     const getFirstLevelCategories = async (date: string | null = null) => {
-        console.log(token)
         const res = await fetch(`${BASE_URL}/category/firstLevel${date ? `?date=${date}` : ''}`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -38,7 +38,17 @@ export function useApi() {
             },
             method: 'GET',
         });
-        return res.json();
+        const category = await res.json();
+
+        const resPathLabel = await fetch(`${BASE_URL}/category/${categoryId}/pathLabel`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'GET',
+        });
+        category.pathLabel = await resPathLabel.json()
+        return category;
     }
 
     const getPossibleParents = async (categoryId: number) => {
@@ -52,13 +62,24 @@ export function useApi() {
         return res.json();
     }
 
-    const createCategory = async (category: Category) => {
+    const getAllCategories = async () => {
+        const res = await fetch(`${BASE_URL}/category/withPathLabel`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'GET',
+        });
+        return res.json();
+    }
+
+    const createCategory = async (category: CategoryBody) => {
         const res = await fetch(`${BASE_URL}/category`, {
             headers: {
                 'Content-Type': 'application/json',
                 authorization: `Bearer ${token}`
             },
-            method: 'CREATE',
+            method: 'POST',
             body: JSON.stringify(category)
         });
         return res.json();
@@ -137,7 +158,8 @@ export function useApi() {
             },
             method: 'GET'
         });
-        return res.json();
+        const fetchedTransaction = await res.json();
+        return { ...fetchedTransaction, date: new Date(fetchedTransaction.date) }
     }
 
     const updateTransaction = async (transaction: Transaction) => {
@@ -174,7 +196,8 @@ export function useApi() {
         createTransaction,
         getTransactionById,
         updateTransaction,
-        deleteTransaction
+        deleteTransaction,
+        getAllCategories,
     };
 }
 

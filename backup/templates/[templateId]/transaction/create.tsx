@@ -13,7 +13,7 @@ const TemplateTransaction = props => {
     const [categoryId, setCategoryId] = useState(categories[1].id);
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
-    const [details, setDetails] = useState('');
+    const [detail, setDetails] = useState('');
     const [dateOffset, setDateOffset] = useState('0');
     const [isPositive, setIsPositive] = useState(true);
     const router = useRouter();
@@ -81,7 +81,7 @@ const TemplateTransaction = props => {
                     blurOnSubmit
                     autoCapitalize="none"
                     autoCorrect={false}
-                    value={details}
+                    value={detail}
                     numberOfLines={4}
                     multiline={true}
                     onChangeText={(input) => setDetails(input)}
@@ -105,7 +105,7 @@ const TemplateTransaction = props => {
                             await addTemplateTransaction({
                                 name: name,
                                 value: isPositive ? value : -1 * value,
-                                details: details,
+                                detail: detail,
                                 dateOffset: dateOffset,
                                 templateId: templateId,
                                 categoryId: categoryId

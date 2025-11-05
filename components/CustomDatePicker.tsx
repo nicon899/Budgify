@@ -24,7 +24,6 @@ const CustomDatePicker = props => {
                     onChange={(event, date) => {
                         setShow(false);
                         if (date != undefined) {
-                            console.log(date);
                             props.setDate(date);
                         }
                     }}

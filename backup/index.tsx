@@ -36,7 +36,6 @@ const CategoryScreen = () => {
 
 
     const setDate = (date: Date) => {
-        console.log("Setting date to", date.toISOString());
         _setDate(date);
         context.actions.refresh(date.toISOString())
     };

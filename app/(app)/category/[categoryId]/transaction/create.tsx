@@ -3,7 +3,7 @@ import DatePicker from '@/components/DatePicker';
 import { useApi } from '@/hooks/useApi';
 import { AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 
 const Booking = props => {
@@ -11,23 +11,17 @@ const Booking = props => {
     const [categoryId, setCategoryId] = useState(categoryIdParamStr ? parseInt(categoryIdParamStr as string, 10) : null)
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
-    const [details, setDetails] = useState('');
+    const [detail, setDetail] = useState('');
     const [date, setDate] = useState(new Date());
     const [isPositive, setIsPositive] = useState(isPositiveParam === 'true');
     const { createTransaction } = useApi()
     const router = useRouter();
-
-    useEffect(() => {
-        (async () => {
-
-        })()
-    }, [])
-
+    
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
 
-                <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} filterChildCategories={false}/>
+                <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
 
                 <DatePicker
                     style={styles.dateInput}
@@ -73,10 +67,10 @@ const Booking = props => {
                     blurOnSubmit
                     autoCapitalize="none"
                     autoCorrect={false}
-                    value={details}
+                    value={detail}
                     numberOfLines={4}
                     multiline={true}
-                    onChangeText={(input) => setDetails(input)}
+                    onChangeText={(input) => setDetail(input)}
                 />
             </View>
 
@@ -97,7 +91,7 @@ const Booking = props => {
                             await createTransaction({
                                 name: name,
                                 value: isPositive ? Number(value) : -1 * value,
-                                details: details,
+                                detail: detail,
                                 date: date,
                                 categoryId: categoryId
                             })

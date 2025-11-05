@@ -4,5 +4,7 @@ export type Category = {
     total: number;
     parentId: number | undefined;
     children?: Category[];
-    latestDate?: string
+    latestDate?: string;
+    pathLabel?: string;
+    listIndex?: number;
 }

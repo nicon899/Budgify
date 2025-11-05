@@ -34,7 +34,7 @@ const TemplatesScreen = () => {
   const executeTemplate = () => {
     for (const transaction of templateTransactions) {
       const executionDate = transaction.executionDate ? transaction.executionDate : date;
-      actions.addTransaction({ name: transaction.name ? transaction.name : name, value: transaction.value, details: transaction.details, date: executionDate, categoryId: transaction.categoryId });
+      actions.addTransaction({ name: transaction.name ? transaction.name : name, value: transaction.value, detail: transaction.detail, date: executionDate, categoryId: transaction.categoryId });
     }
   }
 

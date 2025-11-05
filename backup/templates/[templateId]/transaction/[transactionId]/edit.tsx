@@ -15,7 +15,7 @@ const TemplateTransaction = props => {
     const [categoryId, setCategoryId] = useState(categories[1].id);
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
-    const [details, setDetails] = useState('');
+    const [detail, setDetails] = useState('');
     const [dateOffset, setDateOffset] = useState('0');
     const [isPositive, setIsPositive] = useState(true);
     const router = useRouter();
@@ -23,12 +23,11 @@ const TemplateTransaction = props => {
     useEffect(() => {
         (async () => {
             const templateTransaction = await actions.fetchTemplateTransaction(id);
-            console.log('Loaded template transaction:', templateTransaction);
             if (templateTransaction) {
                 setCategoryId(templateTransaction.categoryId);
                 setName(templateTransaction.name);
                 setValue(Math.abs(templateTransaction.value).toString());
-                setDetails(templateTransaction.details);
+                setDetails(templateTransaction.detail);
                 setDateOffset(templateTransaction.dateOffset);
                 setIsPositive(templateTransaction.value > 0 ? true : false);
             }
@@ -120,7 +119,7 @@ const TemplateTransaction = props => {
                     blurOnSubmit
                     autoCapitalize="none"
                     autoCorrect={false}
-                    value={details}
+                    value={detail}
                     numberOfLines={4}
                     multiline={true}
                     onChangeText={(input) => setDetails(input)}
@@ -145,7 +144,7 @@ const TemplateTransaction = props => {
                                 id: id,
                                 name: name,
                                 value: isPositive ? value : -1 * value,
-                                details: details,
+                                detail: detail,
                                 dateOffset: dateOffset,
                                 transactionId: transactionId,
                                 categoryId: categoryId

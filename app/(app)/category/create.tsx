@@ -1,14 +1,14 @@
+import { useApi } from '@/hooks/useApi';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { finContext } from '../../../contexts/FinContext';
 
 const CreateCategoryScreen = () => {
-    const { categoryId: categoryIdParam, index: indexParam } = useLocalSearchParams();
-    const categoryId = categoryIdParam === 'null' ? null : parseInt(categoryIdParam);
-    const index = indexParam ? parseInt(indexParam) : 999999999;
+    const { parentId: parentIdParamStr, listIndex: listIndexParamStr } = useLocalSearchParams();
+    const parentIdParam = parentIdParamStr != null ? Number(parentIdParamStr) : null;
+    const listIndex = listIndexParamStr != null ? Number(listIndexParamStr) : 999999999
     const [name, setName] = useState('');
-    const context = useContext(finContext);
+    const { createCategory } = useApi()
     const router = useRouter();
 
     return (
@@ -28,7 +28,7 @@ const CreateCategoryScreen = () => {
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'red' }]}
                     onPress={() => {
-                            router.dismiss();
+                        router.dismiss();
                     }}
                 >
                     <Text style={{ color: 'red' }}>Cancel</Text>
@@ -39,10 +39,10 @@ const CreateCategoryScreen = () => {
                     onPress={async () => {
                         const category = {
                             name: name,
-                            index: index,
-                            parentId: categoryId
+                            listIndex: listIndex,
+                            parentId: parentIdParam
                         }
-                        await context.actions.addCategory(category);
+                        await createCategory(category);
                         router.dismiss();
                     }}
                 >

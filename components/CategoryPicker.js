@@ -1,20 +1,24 @@
 import { useApi } from '@/hooks/useApi';
 import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 const CategoryPicker = props => {
     const [pickerItems, setPickerItems] = useState([]);
-    const { getPossibleParents } = useApi()
+    const { getPossibleParents, getAllCategories } = useApi()
 
     useEffect(() => {
         (async () => {
             const selectableCategories = []
-            if (props.filterChildCategories) {
-                const fetchedCategories = await getPossibleParents(props.categoryId)
+            if (props.filterChildCategories != null) {
+                const fetchedCategories = await getPossibleParents(props.filterChildCategories)
+                fetchedCategories.push({
+                    id: null,
+                    path: '*Total*'
+                })
                 selectableCategories.push(...fetchedCategories)
             } else {
-                const fetchedCategories = await getPossibleParents(props.categoryId)
+                const fetchedCategories = await getAllCategories(true)
                 selectableCategories.push(...fetchedCategories)
             }
 
@@ -39,9 +43,10 @@ const CategoryPicker = props => {
 
     return (
         <View style={[styles.picker, props.style]}>
+            <Text style={{ color: 'white' }}>Hallo</Text>
             {pickerItems.length > 0 && <Picker
                 selectedValue={props.categoryId}
-                style={{ color: 'white', textAlign: 'center' }}
+                style={{ color: 'black', textAlign: 'center' }}
                 onValueChange={(itemValue, itemIndex) => {
                     props.setCategoryId(itemValue);
                 }}>
@@ -59,6 +64,7 @@ const styles = StyleSheet.create({
         padding: 10
     },
     picker: {
-        width: '100%',
+        width: '80%',
+        maxWidth: 300
     }
 })

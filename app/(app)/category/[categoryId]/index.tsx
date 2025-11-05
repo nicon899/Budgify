@@ -22,21 +22,17 @@ const CategoryScreen = () => {
     const { getFirstLevelCategories, getCategoryById, getLatestDate, getTransactionsOfCategory } = useApi();
     const isFocused = useIsFocused();
 
-    console.log(date)
-
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
 
     const setLatestDate = async () => {
         const latestDate = await getLatestDate()
-        console.log(latestDate)
         setDate(latestDate, true);
     }
 
     const updateData = async (newDate: Date | null) => {
         const category = categoryIdParam ? await getCategoryById(categoryIdParam, newDate?.toISOString()) : await getFirstLevelCategories(newDate?.toISOString())
         setCategory(category)
-        console.log(category)
         if (categoryIdParam) {
             const fetchedTransactions = await getTransactionsOfCategory(categoryIdParam, newDate?.toISOString())
             setTransactions(fetchedTransactions);
@@ -54,7 +50,6 @@ const CategoryScreen = () => {
     }
 
     const openCategory = (id: number) => {
-        console.log(id)
         if (id == null) return
         router.navigate(`/category/${id}`);
     }
@@ -126,7 +121,7 @@ const CategoryScreen = () => {
                         router.navigate(`/category/${category.id}/edit`);
                     }}
                 >
-                    <Text style={styles.header_route}>Test/Test/Test</Text>
+                    <Text style={styles.header_route}>{category.pathLabel}</Text>
                     <View style={styles.header_title}>
                         <FontAwesome6 name="sack-dollar" size={FONT_SIZE_LARGE} color={category.total > 0 ? theme.colors.positive_text : theme.colors.negative_text} />
                         <Text style={styles.header_title_text}>{category.name}</Text>
@@ -140,7 +135,7 @@ const CategoryScreen = () => {
                     style={styles.categoryList}
                     bookings={transactions}
                     categories={category.children ? category.children : []}
-                    showBooking={(id: number) => router.navigate(`${category.id}/booking/${id}`)}
+                    showBooking={(id: number) => router.navigate(`category/${category.id}/transaction/${id}/edit`)}
                     showCategory={(id: number) => openCategory(id)}
                     showBookings={category.id !== null}
                 />

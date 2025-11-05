@@ -30,14 +30,12 @@ export default function FinanceStackNavigator() {
 
     return (
         <Stack >
-            <Stack.Screen name="index" options={{ headerShown: false,title: 'Index' }} />
-            <Stack.Screen name="category/[categoryId]/index" options={{  title: 'Home' }} />
-            <Stack.Screen name="category/[categoryId]/edit" options={{ title: 'Edit Category'}} />
-            {/* <Stack.Screen name="category/[categoryId]/create" options={{ title: 'Create Category', headerShown: false }} /> */}
+            <Stack.Screen name="index" options={{ headerShown: false, title: 'Index' }} />
+            <Stack.Screen name="category/create" options={{ title: 'Create Category', headerShown: false }} />
+            <Stack.Screen name="category/[categoryId]/index" options={{ title: 'Home' }} />
+            <Stack.Screen name="category/[categoryId]/edit" options={{ title: 'Edit Category' }} />
             <Stack.Screen name="category/[categoryId]/transaction/create" options={{ title: 'Create Transaction' }} />
-            {/* <Stack.Screen name="[categoryId]/booking/[bookingId]" options={{ title: 'Booking Details', headerShown: false }} /> */}
-            {/* <Stack.Screen name="[categoryId]/booking/[bookingId]/edit" options={{ title: 'Edit Booking', headerShown: false }} /> */}
-            {/* <Stack.Screen name="settings" options={{ title: 'Settings', headerShown: false, }} /> */}
+            <Stack.Screen name="category/[categoryId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction' }} />
             {/* <Stack.Screen name="templates" options={{ title: 'Templates', headerShown: false, }} /> */}
             {/* <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: false }} /> */}
             {/* <Stack.Screen name="templates/[templateId]" options={{ title: 'Edit Template', headerShown: false }} /> */}
