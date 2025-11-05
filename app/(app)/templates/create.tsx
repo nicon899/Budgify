@@ -1,12 +1,12 @@
+import { useApi } from '@/hooks/useApi';
 import { useRouter } from 'expo-router';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { finContext } from '../../contexts/FinContext';
 
 const CreateTemplateScreen = () => {
     const [name, setName] = useState('');
-    const context = useContext(finContext);
     const router = useRouter();
+    const {createTemplate} = useApi();
 
     return (
         <View style={styles.screen}>
@@ -37,7 +37,7 @@ const CreateTemplateScreen = () => {
                         const template = {
                             name: name
                         }
-                        await context.actions.addTemplate(template);
+                        await createTemplate(template);
                         router.dismiss();
                     }}
                 >

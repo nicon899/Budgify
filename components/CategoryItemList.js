@@ -4,8 +4,6 @@ import BookingItem from './BookingItem';
 import CategoryItem from './CategoryItem';
 
 const CategoryItemList = props => {
-    console.log("List")
-    console.log(props.categories)
     return (
         <View style={props.style}>
             <FlatList

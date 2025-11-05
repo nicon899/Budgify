@@ -1,6 +1,8 @@
 import { useAuth } from "@/contexts/AuthContext";
-import { CategoryBody } from "@/types/ApiTypes";
+import { CategoryBody, TemplateBody, TemplateTransactionBody } from "@/types/ApiTypes";
 import { Category } from "@/types/Category";
+import { Template } from "@/types/Template";
+import { TemplateTransaction } from "@/types/TemplateTransaction";
 import { Transaction } from "@/types/Transaction";
 
 export const BASE_URL = "http://localhost:3000/api";
@@ -39,7 +41,11 @@ export function useApi() {
             method: 'GET',
         });
         const category = await res.json();
+        category.pathLabel = await getCategoryPathLabelById(categoryId);
+        return category;
+    }
 
+    const getCategoryPathLabelById = async (categoryId: number, date: string | null = null) => {
         const resPathLabel = await fetch(`${BASE_URL}/category/${categoryId}/pathLabel`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -47,8 +53,7 @@ export function useApi() {
             },
             method: 'GET',
         });
-        category.pathLabel = await resPathLabel.json()
-        return category;
+        return await resPathLabel.json()
     }
 
     const getPossibleParents = async (categoryId: number) => {
@@ -184,6 +189,111 @@ export function useApi() {
         });
         return res.json();
     }
+
+    // TEMPLATES
+    const getTemplates = async () => {
+        const res = await fetch(`${BASE_URL}/template`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'GET'
+        });
+        return res.json();
+    }
+
+    const getTemplateById = async (id: number) => {
+        const res = await fetch(`${BASE_URL}/template/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'GET'
+        });
+        return await res.json();
+    }
+
+    const createTemplate = async (template: TemplateBody) => {
+        const res = await fetch(`${BASE_URL}/template`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'POST',
+            body: JSON.stringify(template)
+        });
+        return res.json();
+    }
+
+    const updateTemplate = async (template: Template) => {
+        const res = await fetch(`${BASE_URL}/template/${template.id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'PATCH',
+            body: JSON.stringify({ name: template.name })
+        });
+        return res.json();
+    }
+
+    const deleteTemplate = async (id: number) => {
+        const res = await fetch(`${BASE_URL}/template/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'DELETE'
+        });
+        return await res.json();
+    }
+
+    const getTemplateTransactionById = async (id: number) => {
+        const res = await fetch(`${BASE_URL}/template/transaction/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'GET'
+        });
+        return await res.json();
+    }
+
+    const createTemplateTransaction = async (templateTransaction: TemplateTransactionBody) => {
+        const res = await fetch(`${BASE_URL}/template/transaction`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'POST',
+            body: JSON.stringify(templateTransaction)
+        });
+        return res.json();
+    }
+
+    const updateTemplateTransaction = async (templateTransaction: TemplateTransaction) => {
+        const res = await fetch(`${BASE_URL}/template/transaction/${templateTransaction.id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'PATCH',
+            body: JSON.stringify(templateTransaction)
+        });
+        return res.json();
+    }
+
+    const deleteTemplateTransaction = async (id: number) => {
+        const res = await fetch(`${BASE_URL}/template/transaction/${id}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                authorization: `Bearer ${token}`
+            },
+            method: 'DELETE'
+        });
+        return await res.json();
+    }
+
     return {
         getFirstLevelCategories,
         getCategoryById,
@@ -198,6 +308,15 @@ export function useApi() {
         updateTransaction,
         deleteTransaction,
         getAllCategories,
+        getTemplates,
+        getTemplateById,
+        createTemplateTransaction,
+        getCategoryPathLabelById,
+        updateTemplate,
+        createTemplate,
+        getTemplateTransactionById,
+        updateTemplateTransaction,
+        deleteTemplateTransaction
     };
 }
 

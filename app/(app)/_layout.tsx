@@ -36,11 +36,11 @@ export default function FinanceStackNavigator() {
             <Stack.Screen name="category/[categoryId]/edit" options={{ title: 'Edit Category' }} />
             <Stack.Screen name="category/[categoryId]/transaction/create" options={{ title: 'Create Transaction' }} />
             <Stack.Screen name="category/[categoryId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction' }} />
-            {/* <Stack.Screen name="templates" options={{ title: 'Templates', headerShown: false, }} /> */}
-            {/* <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: false }} /> */}
-            {/* <Stack.Screen name="templates/[templateId]" options={{ title: 'Edit Template', headerShown: false }} /> */}
-            {/* <Stack.Screen name="templates/[templateId]/transaction/create" options={{ title: 'Create Transaction', headerShown: false }} /> */}
-            {/* <Stack.Screen name="templates/[templateId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction', headerShown: false }} /> */}
+            <Stack.Screen name="templates/index" options={{ title: 'Templates' }} />
+            <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: false }} />
+            <Stack.Screen name="templates/[templateId]/index" options={{ title: 'Template Page' }} />
+            <Stack.Screen name="templates/[templateId]/transaction/create" options={{ title: 'Create Transaction', headerShown: false }} />
+            <Stack.Screen name="templates/[templateId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction'}} />
             <Stack.Screen name="+not-found" />
         </Stack>
     );

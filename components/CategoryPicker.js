@@ -1,7 +1,7 @@
 import { useApi } from '@/hooks/useApi';
 import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 const CategoryPicker = props => {
     const [pickerItems, setPickerItems] = useState([]);
@@ -20,6 +20,10 @@ const CategoryPicker = props => {
             } else {
                 const fetchedCategories = await getAllCategories(true)
                 selectableCategories.push(...fetchedCategories)
+            }
+
+            if (props.categoryId == null) {
+                props.setCategoryId(selectableCategories[0].id)
             }
 
             const newPickerItems = [];
@@ -43,7 +47,6 @@ const CategoryPicker = props => {
 
     return (
         <View style={[styles.picker, props.style]}>
-            <Text style={{ color: 'white' }}>Hallo</Text>
             {pickerItems.length > 0 && <Picker
                 selectedValue={props.categoryId}
                 style={{ color: 'black', textAlign: 'center' }}

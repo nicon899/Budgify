@@ -1,68 +1,25 @@
-import CategoryPicker from '@/components/CategoryPicker';
-import { finContext } from '@/contexts/FinContext';
-import { scaleFontSize } from '@/util/util';
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useApi } from '@/hooks/useApi';
+import { AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useContext, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
-
+import CategoryPicker from '../../../../../components/CategoryPicker';
 
 const TemplateTransaction = props => {
-    const { transactionId } = useLocalSearchParams();
-    const id = transactionId ? parseInt(transactionId, 10) : null; // Ensure id is a number
-    const { categories, actions } = useContext(finContext)
-    const addTemplateTransaction = actions.addTemplateTransaction;
-    const [categoryId, setCategoryId] = useState(categories[1].id);
+    const { templateId: templateIdParamStr } = useLocalSearchParams();
+    const templateId = templateIdParamStr ? Number(templateIdParamStr) : null;
+    const [categoryId, setCategoryId] = useState(null);
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
     const [detail, setDetails] = useState('');
     const [dateOffset, setDateOffset] = useState('0');
     const [isPositive, setIsPositive] = useState(true);
     const router = useRouter();
-
-    useEffect(() => {
-        (async () => {
-            const templateTransaction = await actions.fetchTemplateTransaction(id);
-            if (templateTransaction) {
-                setCategoryId(templateTransaction.categoryId);
-                setName(templateTransaction.name);
-                setValue(Math.abs(templateTransaction.value).toString());
-                setDetails(templateTransaction.detail);
-                setDateOffset(templateTransaction.dateOffset);
-                setIsPositive(templateTransaction.value > 0 ? true : false);
-            }
-        })();
-    }, []);
-
-    if (!transactionId) {
-        return (<Text>Template Transaction not found!</Text>);
-    }
+    const { createTemplateTransaction } = useApi()
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
-
-                <View style={styles.topBar}>
-                    <TouchableOpacity
-                        onPress={() => {
-                            Alert.alert(
-                                'Delete Template Transaction',
-                                'This Template Transaction will be removed for good!',
-                                [{ text: 'Cancel', style: 'cancel' },
-                                {
-                                    text: 'OK', onPress: async () => {
-                                        await actions.deleteTemplateTransaction(id)
-                                        router.setParams({ refresh: Date.now() });
-                                        router.dismiss();
-                                    }
-                                },
-                                ], { cancelable: true }
-                            )
-                        }}
-                    >
-                        <MaterialCommunityIcons name="delete" size={scaleFontSize(48)} color="red" />
-                    </TouchableOpacity>
-                </View>
 
                 <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
 
@@ -139,15 +96,15 @@ const TemplateTransaction = props => {
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'green' }]}
                     onPress={async () => {
+                        if (!templateId) return;
                         if (/^[0-9]+(\.[0-9]{1,2})?$/g.test(value)) {
-                            await actions.updateTemplateTransaction({
-                                id: id,
+                            await createTemplateTransaction({
                                 name: name,
-                                value: isPositive ? value : -1 * value,
+                                value: isPositive ? Number(value) : -1 * Number(value),
                                 detail: detail,
-                                dateOffset: dateOffset,
-                                transactionId: transactionId,
-                                categoryId: categoryId
+                                dateOffset: Number(dateOffset),
+                                templateId: templateId,
+                                categoryId: Number(categoryId)
                             })
                             router.dismiss();
                         } else {
@@ -174,11 +131,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'black',
         paddingTop: 20,
-    },
-    topBar: {
-        // height: '10%',
-        padding: 5,
-        alignItems: 'flex-end'
     },
     input: {
         width: '75%',

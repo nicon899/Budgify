@@ -64,17 +64,6 @@ const CategoryScreen = () => {
 
     return (<PaperProvider>
         <View style={styles.screen}>
-            {/* <View style={styles.topBar}>
-                    <View style={styles.dateBar}>
-                                    
-                        <View style={styles.topBarDateIcons}>
-                            
-                        </View>
-                    
-                    </View>
-                    
-                </View> */}
-
             <View style={styles.toolbar}>
                 <CustomDatePicker
                     style={{}}
@@ -111,7 +100,6 @@ const CategoryScreen = () => {
                     <Menu.Item onPress={() => router.navigate(`/templates`)} title="Templates" />
                 </Menu>
             </View>
-
 
             <View style={styles.header}>
                 <TouchableOpacity

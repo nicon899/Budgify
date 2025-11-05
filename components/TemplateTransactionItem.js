@@ -1,13 +1,11 @@
-import { finContext } from '@/contexts/FinContext';
-import { useContext, useEffect } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useApi } from "@/hooks/useApi";
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import theme from '../app/theme.ts';
 
 const TemplateTransactionItem = props => {
-    const context = useContext(finContext);
-    const category = context.categories.find(cat => cat.id === props.categoryId);
-    const scaleFontSize = (fontSize) => {
-        return Math.ceil((fontSize * Math.min(Dimensions.get('window').width / 411, Dimensions.get('window').height / 861)));
-    }
+    const [categoryLabel, setCategoryLabel] = useState('');
+    const { getCategoryPathLabelById } = useApi()
 
     useEffect(() => {
         if (props.dateOffset != null && props.dateOffset !== 0) {
@@ -20,22 +18,30 @@ const TemplateTransactionItem = props => {
         }
     }, [props.date, props.dateOffset]);
 
+    useEffect(() => {
+        if(props.categoryId == null) return
+        (async () => {
+            const fetchedLabel = getCategoryPathLabelById(props.categoryId)
+            setCategoryLabel(fetchedLabel)
+        })()
+    }, [props.categoryId])
+
     return (
         <TouchableOpacity
             onPress={() => {
                 props.onPress();
             }}>
             <View style={[styles.item]}>
-                <View><Text style={{ color: 'grey', fontSize: scaleFontSize(16) }}>{category?.name}</Text></View>
+                <View><Text style={{ color: 'grey', fontSize: theme.fontSize.regular }}>{categoryLabel}</Text></View>
                 <View style={styles.itemName}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, maxWidth: '80%' }}>
-                        <Text numberOfLines={1} style={{ color: 'grey', fontSize: scaleFontSize(16) }}>{""
+                        <Text numberOfLines={1} style={{ color: 'grey', fontSize: theme.fontSize.regular }}>{""
                             + (props.executionDate.getDate() < 10 ? "0" + props.executionDate.getDate() : props.executionDate.getDate()) + "."
                             + (props.executionDate.getMonth() < 9 ? "0" + (props.executionDate.getMonth() + 1) : (props.executionDate.getMonth() + 1)) + "."
                             + props.executionDate.getFullYear()}</Text>
                         <Text numberOfLines={1} adjustsFontSizeToFit style={{ color: 'white', fontSize: 20 }}>{props.name}</Text>
                     </View>
-                    <Text numberOfLines={1} style={{ color: props.value > 0 ? 'green' : 'red', fontSize: scaleFontSize(24), fontFamily: 'JetBrainsMono' }}>{props.value.toFixed(2)}</Text>
+                    <Text numberOfLines={1} style={{ color: props.value > 0 ? 'green' : 'red', fontSize: theme.fontSize.large, fontFamily: 'JetBrainsMono' }}>{props.value.toFixed(2)}</Text>
                 </View>
             </View>
         </TouchableOpacity>
