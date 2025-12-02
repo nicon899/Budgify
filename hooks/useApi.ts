@@ -5,7 +5,7 @@ import { Template } from "@/types/Template";
 import { TemplateTransaction } from "@/types/TemplateTransaction";
 import { Transaction } from "@/types/Transaction";
 
-export const BASE_URL = "http://localhost:3000/api";
+export const BASE_URL = "http://217.154.162.22:3000/api";
 
 export function useApi() {
     const { actions: auth, token } = useAuth();

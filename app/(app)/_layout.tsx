@@ -1,7 +1,6 @@
-import { authContext } from '@/contexts/AuthContext';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import React, { useContext } from 'react';
+import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 export default function FinanceStackNavigator() {
@@ -9,7 +8,6 @@ export default function FinanceStackNavigator() {
         'JetBrainsMono': require('../../assets/fonts/JetBrainsMono-Thin.ttf'),
         'JetBrainsMono-Bold': require('../../assets/fonts/JetBrainsMono-Bold.ttf'),
     });
-    const auth = useContext(authContext);
 
     // const context = useContext(finContext);
     if (!fontsLoaded) {
@@ -17,14 +15,6 @@ export default function FinanceStackNavigator() {
             <View style={styles.screen}>
                 <ActivityIndicator size={250} color='#2244FF80' />
             </View>
-        );
-    }
-
-    if (!auth.token) {
-        return (
-            <Stack >
-                <Stack.Screen name="(pages)/user/login" options={{ headerShown: false }} />
-            </Stack >
         );
     }
 

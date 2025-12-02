@@ -3,6 +3,7 @@ import { useApi } from '@/hooks/useApi';
 import { Category } from '@/types/Category';
 import { scaleFontSize } from '@/util/util';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -15,21 +16,26 @@ const EditCategory = () => {
     const [isOrderChanged, setIsOrderChanged] = useState(false);
     const { updateCategory, deleteCategory } = useApi();
     const router = useRouter();
-    const { getCategoryById } = useApi()
+    const { getCategoryById, getFirstLevelCategories } = useApi()
+    const isFocused = useIsFocused();
+
 
     useEffect(() => {
-        if (!categoryIdParam) return;
-        (async () => {
-            const loadedCategory = await getCategoryById(categoryIdParam);
-            if (!loadedCategory) return;
-            setCategory(loadedCategory)
-        })()
-    }, []);
+        if (!categoryIdParam && categoryIdParamStr !== 'total') return;
+        updateData(categoryIdParamStr === "total" ? "total" : categoryIdParam!);
+    }, [categoryIdParam, categoryIdParamStr, isFocused]);
+
+    const updateData = async (id: number | "total") => {
+        const loadedCategory = (id === 'total') ? await getFirstLevelCategories(new Date().toISOString()) : await getCategoryById(id);
+        console.log(loadedCategory);
+        if (!loadedCategory) return;
+        setCategory(loadedCategory)
+    }
 
     // TODO: Update Indexes when changing subcategory order
     const updateIndexes = async () => {
         let index = 0;
-        if(!category?.children) return;
+        if (!category?.children) return;
         category.children.forEach(cat => {
             cat.listIndex = index;
             index++;
@@ -42,6 +48,7 @@ const EditCategory = () => {
     const update = async () => {
         if (!category) return;
         await updateCategory(category);
+        updateData(category.id);
     };
 
     const onReordered = async (fromIndex: number, toIndex: number) => {
@@ -69,7 +76,7 @@ const EditCategory = () => {
                             autoCapitalize="none"
                             autoCorrect={false}
                             value={category.name}
-                            onChangeText={(input) => { setCategory({...category, name: input}) }}
+                            onChangeText={(input) => { setCategory({ ...category, name: input }) }}
                         />
                     </View>
                     <TouchableOpacity
@@ -111,7 +118,9 @@ const EditCategory = () => {
                         </TouchableOpacity>
                     </View>
 
-                    <CategoryPicker categoryId={category.parentId} setCategoryId={(input: number) => {setCategory({...category, parentId: input})}} filterChildCategories={category.id}/>
+                    {category.id !== null && category.id !== 'total' &&
+                        <CategoryPicker categoryId={category.parentId} setCategoryId={(input: number) => { setCategory({ ...category, parentId: input }) }} filterChildCategories={category.id} />
+                    }
                     <View style={{ flex: 1, width: '100%' }}>
                         {category.children && <DragList
                             data={category.children}

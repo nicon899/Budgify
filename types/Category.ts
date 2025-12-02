@@ -1,5 +1,5 @@
 export type Category = {
-    id: number;
+    id: number | 'total';
     name: string;
     total: number;
     parentId: number | undefined;

@@ -32,6 +32,9 @@ const CategoryScreen = () => {
 
     const updateData = async (newDate: Date | null) => {
         const category = categoryIdParam ? await getCategoryById(categoryIdParam, newDate?.toISOString()) : await getFirstLevelCategories(newDate?.toISOString())
+        if (category.id == null && category.name === 'Total') {
+            category.id = 'total';
+        }
         setCategory(category)
         if (categoryIdParam) {
             const fetchedTransactions = await getTransactionsOfCategory(categoryIdParam, newDate?.toISOString())
@@ -104,7 +107,7 @@ const CategoryScreen = () => {
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.header_inner}
-                    disabled={category.id == null}
+                    // disabled={category.id == null}
                     onPress={() => {
                         router.navigate(`/category/${category.id}/edit`);
                     }}
@@ -114,7 +117,9 @@ const CategoryScreen = () => {
                         <FontAwesome6 name="sack-dollar" size={FONT_SIZE_LARGE} color={category.total > 0 ? theme.colors.positive_text : theme.colors.negative_text} />
                         <Text style={styles.header_title_text}>{category.name}</Text>
                     </View>
-                    <Text numberOfLines={1} style={[styles.header_value, { color: category.total > 0 ? theme.colors.positive_text : theme.colors.negative_text }]}>{(category.name + category.total).length > 20 && '\n'}{category.total.toFixed(2)} {CURRENCY_SYMBOL}</Text>
+                    {category?.total &&
+                        <Text numberOfLines={1} style={[styles.header_value, { color: category.total > 0 ? theme.colors.positive_text : theme.colors.negative_text }]}>{(category.name + category.total).length > 20 && '\n'}{category.total.toFixed(2)} {CURRENCY_SYMBOL}</Text>
+                    }
                 </TouchableOpacity>
             </View>
 
@@ -131,7 +136,7 @@ const CategoryScreen = () => {
         </View >
 
         <View style={styles.transBar}>
-            {category.id !== null && (
+            {(category.id !== null && category.id !== 'total') && (
                 <TouchableOpacity
                     style={styles.transButton}
                     onPress={() => {
