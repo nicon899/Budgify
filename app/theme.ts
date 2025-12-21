@@ -5,7 +5,7 @@ export const FONT_SIZE_REGULAR = 18;
 export const FONT_SIZE_LARGE = 20;
 export const FONT_SIZE_XLARGE = 30;
 export const FONT_SIZE_XXLARGE = 32;
-export const FONT_SIZE_XXXLARGE = 36;
+export const FONT_SIZE_XXXLARGE = 48;
 export const CURRENCY_SYMBOL = '€';
 
 const theme = {
@@ -19,8 +19,9 @@ const theme = {
         positive_text: '#00E676',
         negative_text: '#FF5252',
         blue_text: '#2196F3',
+        dark_text: '#220000',
         icons: '#8E8E8E',
-        accent: '#BB86FC',
+        accent: '#2196F3',
     },
     fonts: {
         regular: 'Roboto-Regular',

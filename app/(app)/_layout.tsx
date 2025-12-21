@@ -1,9 +1,11 @@
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import React, { useRef } from 'react';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 
 export default function FinanceStackNavigator() {
+    let headerShown = useRef(Platform.OS === 'web' ? true : false);
+
     let [fontsLoaded] = useFonts({
         'JetBrainsMono': require('../../assets/fonts/JetBrainsMono-Thin.ttf'),
         'JetBrainsMono-Bold': require('../../assets/fonts/JetBrainsMono-Bold.ttf'),
@@ -21,16 +23,16 @@ export default function FinanceStackNavigator() {
     return (
         <Stack >
             <Stack.Screen name="index" options={{ headerShown: false, title: 'Index' }} />
-            <Stack.Screen name="category/create" options={{ title: 'Create Category', headerShown: false }} />
-            <Stack.Screen name="category/[categoryId]/index" options={{ title: 'Home' }} />
-            <Stack.Screen name="category/[categoryId]/edit" options={{ title: 'Edit Category' }} />
-            <Stack.Screen name="category/[categoryId]/transaction/create" options={{ title: 'Create Transaction' }} />
-            <Stack.Screen name="category/[categoryId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction' }} />
-            <Stack.Screen name="templates/index" options={{ title: 'Templates' }} />
-            <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: false }} />
-            <Stack.Screen name="templates/[templateId]/index" options={{ title: 'Template Page' }} />
-            <Stack.Screen name="templates/[templateId]/transaction/create" options={{ title: 'Create Transaction', headerShown: false }} />
-            <Stack.Screen name="templates/[templateId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction'}} />
+            <Stack.Screen name="category/create" options={{ title: 'Create Category', headerShown: headerShown.current }} />
+            <Stack.Screen name="category/[categoryId]/index" options={{ title: 'Home', headerShown: headerShown.current }} />
+            <Stack.Screen name="category/[categoryId]/edit" options={{ title: 'Edit Category', headerShown: headerShown.current }} />
+            <Stack.Screen name="category/[categoryId]/transaction/create" options={{ title: 'Create Transaction', headerShown: headerShown.current }} />
+            <Stack.Screen name="category/[categoryId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction', headerShown: headerShown.current}} />
+            <Stack.Screen name="templates/index" options={{ title: 'Templates', headerShown: headerShown.current }} />
+            <Stack.Screen name="templates/create" options={{ title: 'Create Template', headerShown: headerShown.current }} />
+            <Stack.Screen name="templates/[templateId]/index" options={{ title: 'Template Page', headerShown: headerShown.current }} />
+            <Stack.Screen name="templates/[templateId]/transaction/create" options={{ title: 'Create Transaction', headerShown: headerShown.current }} />
+            <Stack.Screen name="templates/[templateId]/transaction/[transactionId]/edit" options={{ title: 'Edit Transaction', headerShown: headerShown.current}} />
             <Stack.Screen name="+not-found" />
         </Stack>
     );

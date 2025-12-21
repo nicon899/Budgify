@@ -1,3 +1,4 @@
+import theme from '@/app/theme';
 import { useApi } from '@/hooks/useApi';
 import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
@@ -34,6 +35,7 @@ const CategoryPicker = props => {
             }).forEach(c => {
                 newPickerItems.push(
                     <Picker.Item
+                        style={{ color: theme.colors.dark_text }}
                         key={c.id}
                         label={c.path}
                         value={c.id}
@@ -49,7 +51,7 @@ const CategoryPicker = props => {
         <View style={[styles.picker, props.style]}>
             {pickerItems.length > 0 && <Picker
                 selectedValue={props.categoryId}
-                style={{ color: 'black', textAlign: 'center' }}
+                style={{ color: theme.colors.primary_text, textAlign: 'center', backgroundColor: 'transparent' }}
                 onValueChange={(itemValue, itemIndex) => {
                     props.setCategoryId(itemValue);
                 }}>
@@ -62,12 +64,9 @@ const CategoryPicker = props => {
 export default CategoryPicker
 
 const styles = StyleSheet.create({
-    title: {
-        color: 'white',
-        padding: 10
-    },
     picker: {
         width: '80%',
-        maxWidth: 300
+        maxWidth: 300,
+        backgroundColor: theme.colors.backgroundSecondary,
     }
 })
