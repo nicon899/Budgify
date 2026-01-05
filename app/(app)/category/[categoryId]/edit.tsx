@@ -119,7 +119,7 @@ const EditCategory = () => {
                     </View>
 
                     {category.id !== null && category.id !== 'total' &&
-                        <CategoryPicker categoryId={category.parentId} setCategoryId={(input: number) => { setCategory({ ...category, parentId: input }) }} filterChildCategories={category.id} />
+                        <CategoryPicker categoryId={category.parentId} setCategoryId={(input: number) => { setCategory({ ...category, parentId: input }) }} filterChildCategories={category.id} includeTotal={true} />
                     }
                     <View style={{ flex: 1, width: '100%' }}>
                         {category.children && <DragList

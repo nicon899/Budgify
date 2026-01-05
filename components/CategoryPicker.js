@@ -10,13 +10,16 @@ const CategoryPicker = props => {
 
     useEffect(() => {
         (async () => {
-            const selectableCategories = []
-            if (props.filterChildCategories != null) {
-                const fetchedCategories = await getPossibleParents(props.filterChildCategories)
-                fetchedCategories.push({
+            let selectableCategories = []
+            if (props.includeTotal) {
+                selectableCategories.push({
                     id: null,
                     path: '*Total*'
                 })
+            }
+
+            if (props.filterChildCategories != null) {
+                const fetchedCategories = await getPossibleParents(props.filterChildCategories)
                 selectableCategories.push(...fetchedCategories)
             } else {
                 const fetchedCategories = await getAllCategories(true)
