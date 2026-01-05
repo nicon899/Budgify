@@ -1,3 +1,4 @@
+import alert from '@/components/alert';
 import CategoryPicker from '@/components/CategoryPicker';
 import { useApi } from '@/hooks/useApi';
 import { Category } from '@/types/Category';
@@ -6,7 +7,7 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DragList from 'react-native-draglist';
 
 const EditCategory = () => {
@@ -63,6 +64,10 @@ const EditCategory = () => {
         return <></>;
     }
 
+    if (category.id === null && categoryIdParamStr !== 'total') {
+        return <></>;
+    }
+
     return (
         <View style={styles.screen}>
             <View style={{ width: '100%', height: '90%' }}>
@@ -81,16 +86,22 @@ const EditCategory = () => {
                     </View>
                     <TouchableOpacity
                         onPress={() => {
-                            Alert.alert(
+                            alert(
                                 'Delete Category',
                                 'Are you sure you want to delete this category with all its Bookings and child categories?',
                                 [
-                                    { text: 'Cancel', style: 'cancel' },
+                                    { text: 'Cancel', style: 'cancel', onPress: () => { } },
                                     {
                                         text: 'OK', onPress: async () => {
                                             await deleteCategory(category.id)
                                             if (category.parentId) {
-                                                return router.replace(`?categoryId=${parentId}`);
+                                                console.log("Navigating to parent category:", category.parentId);
+                                                return router.replace(`category/${category.parentId}`);
+                                            }
+                                            else {
+                                                console.log("Navigating to root category view");
+                                                router.dismissAll();
+                                                router.replace('/');
                                             }
                                         }
                                     },
