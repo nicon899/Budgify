@@ -45,6 +45,7 @@ const EditScreen = props => {
 
                 <Text style={styles.label}>Value</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {!isPositive && <Text style={styles.negativeSymbol}>-</Text>}
                     <Text style={styles.currencySymbol}>{CURRENCY_SYMBOL}</Text>
                     <TextInput
                         style={[styles.valueInput]}
@@ -188,6 +189,13 @@ const styles = StyleSheet.create({
         color: theme.colors.primary_text,
         fontSize: theme.fontSize.xxxlarge,
         marginRight: 5,
+    },
+    negativeSymbol: {
+        color: theme.colors.secondary_text,
+        fontSize: theme.fontSize.xxxlarge,
+        // marginRight: 5,
+        left: -20,
+        position: 'absolute',
     },
     expenseIncomeContainer: {
         flexDirection: 'row',
