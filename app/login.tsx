@@ -1,6 +1,7 @@
 import { authContext } from '@/contexts/AuthContext';
 import { useContext, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import theme from './theme';
 
 const Login = () => {
@@ -18,7 +19,7 @@ const Login = () => {
     };
 
 
-    return (<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
+    return (<SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
         <Text style={{ color: 'white', fontSize: 24, marginBottom: 20 }}>Login</Text>
 
         <Text style={styles.label}>Email</Text>
@@ -48,7 +49,7 @@ const Login = () => {
         </TouchableOpacity>
 
         {errorMessage ? <Text style={{ color: theme.colors.negative_text, marginTop: 10 }}>{errorMessage}</Text> : null}
-    </View>);
+    </SafeAreaView>);
 };
 
 const styles = StyleSheet.create({
