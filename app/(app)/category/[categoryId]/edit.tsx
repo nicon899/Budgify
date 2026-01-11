@@ -1,9 +1,9 @@
+import theme from '@/app/theme';
 import alert from '@/components/alert';
 import CategoryPicker from '@/components/CategoryPicker';
 import { useApi } from '@/hooks/useApi';
 import { Category } from '@/types/Category';
-import { scaleFontSize } from '@/util/util';
-import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -70,149 +70,194 @@ const EditCategory = () => {
 
     return (
         <View style={styles.screen}>
-            <View style={{ width: '100%', height: '90%' }}>
-                {category.id !== null && <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                    <View style={styles.nameInputContainer}>
-                        <TextInput
-                            placeholder='Name'
-                            placeholderTextColor="white"
-                            style={styles.input}
-                            blurOnSubmit
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            value={category.name}
-                            onChangeText={(input) => { setCategory({ ...category, name: input }) }}
-                        />
-                    </View>
-                    <TouchableOpacity
-                        onPress={() => {
-                            alert(
-                                'Delete Category',
-                                'Are you sure you want to delete this category with all its Bookings and child categories?',
-                                [
-                                    { text: 'Cancel', style: 'cancel', onPress: () => { } },
-                                    {
-                                        text: 'OK', onPress: async () => {
-                                            await deleteCategory(category.id)
-                                            if (category.parentId) {
-                                                console.log("Navigating to parent category:", category.parentId);
-                                                return router.replace(`category/${category.parentId}`);
-                                            }
-                                            else {
-                                                console.log("Navigating to root category view");
-                                                router.dismissAll();
-                                                router.replace('/');
-                                            }
+
+            {category.id !== null && <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
+                <TouchableOpacity
+                    onPress={() => {
+                        alert(
+                            'Delete Category',
+                            'Are you sure you want to delete this category with all its Bookings and child categories?',
+                            [
+                                { text: 'Cancel', style: 'cancel', onPress: () => { } },
+                                {
+                                    text: 'OK', onPress: async () => {
+                                        await deleteCategory(category.id)
+                                        if (category.parentId) {
+                                            console.log("Navigating to parent category:", category.parentId);
+                                            return router.replace(`category/${category.parentId}`);
                                         }
-                                    },
-                                ],
-                                { cancelable: true }
-                            )
-                        }}
-                    >
-                        <MaterialCommunityIcons style={{ margin: 8 }} name="delete" size={32} color="red" />
-                    </TouchableOpacity>
-                </View>
-                }
-                <View style={{
-                    width: '100%',
-                    height: category.id === null ? '100%' : '90%',
-                }}>
-                    <View style={styles.bookingsheader}>
-                        <Text style={{ color: 'white', fontSize: scaleFontSize(32), fontWeight: 'bold' }}>Categories:</Text>
-                        <TouchableOpacity
-                            onPress={() => {
-                                router.navigate(`/category/create?parentId=${category.id}&listIndex=${category.children.length}`);
+                                        else {
+                                            console.log("Navigating to root category view");
+                                            router.dismissAll();
+                                            router.replace('/');
+                                        }
+                                    }
+                                },
+                            ],
+                            { cancelable: true }
+                        )
+                    }}
+                >
+                    <MaterialCommunityIcons style={{ margin: 8 }} name="delete" size={32} color={theme.colors.negative_text} />
+                </TouchableOpacity>
+            </View>
+            }
+
+            {category.id !== null && category.id !== 'total' && < View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={styles.label}>Category</Text>
+                <CategoryPicker categoryId={category.parentId} style={{ width: '80%' }}
+                    setCategoryId={(input: number) => { setCategory({ ...category, parentId: input }) }}
+                    filterChildCategories={category.id} includeTotal={true} /> </View>
+            }
+
+            <Text style={styles.label}>Name</Text>
+            <TextInput
+                style={styles.input}
+                blurOnSubmit
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={category.name}
+                onChangeText={(input) => setCategory({ ...category, name: input })}
+            />
+
+            {category.children && <Text style={styles.label}>Sub-Categories</Text>}
+            {category.children && <View style={styles.listContainer}><DragList
+                data={category.children}
+                style={styles.dragList}
+                keyExtractor={(item, index) => `${item.id}`}
+                renderItem={({ item, onDragStart, onDragEnd, isActive }) =>
+                (<TouchableOpacity
+                    style={{
+
+                    }}
+                    onPressIn={() => { onDragStart(); setIsOrderChanged(true); }}
+                    onPressOut={onDragEnd}
+                >
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <MaterialCommunityIcons style={{ marginRight: 5 }} name="drag" size={theme.fontSize.large} color={theme.colors.divider} />
+                        <Text
+                            style={{
+                                fontWeight: "bold",
+                                color: "white",
+                                fontSize: theme.fontSize.regular,
+                                borderRadius: 5,
+                                borderColor: theme.colors.divider,
+                                borderWidth: 1,
+                                backgroundColor: isActive ? theme.colors.accent : theme.colors.backgroundTertiary,
+                                marginVertical: 3,
+                                padding: 5,
+                                justifyContent: "center",
+                                flex: 1,
                             }}
                         >
-                            <MaterialIcons style={{ marginRight: '10%' }} name="library-add" size={28} color="#00FF00" />
-                        </TouchableOpacity>
+                            {item.name}
+                        </Text>
                     </View>
 
-                    {category.id !== null && category.id !== 'total' &&
-                        <CategoryPicker categoryId={category.parentId} setCategoryId={(input: number) => { setCategory({ ...category, parentId: input }) }} filterChildCategories={category.id} includeTotal={true} />
+                </TouchableOpacity>)
+                }
+                onReordered={onReordered}
+            /></View>}
+
+
+            <TouchableOpacity
+                onPress={() => {
+                    router.navigate(`/category/create?parentId=${category.id}&listIndex=${category.children.length}`);
+                }}
+            >
+                <Text style={styles.addCategoryButton}>+ Add Category</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[styles.actionButton, { borderColor: 'green' }]}
+                onPress={async () => {
+                    await update();
+                    if (isOrderChanged) {
+                        await updateIndexes();
                     }
-                    <View style={{ flex: 1, width: '100%' }}>
-                        {category.children && <DragList
-                            data={category.children}
-                            style={{ backgroundColor: '#202020', marginHorizontal: 25, borderRadius: 10, padding: 5 }}
-                            keyExtractor={(item, index) => `${item.id}`}
-                            renderItem={({ item, onDragStart, onDragEnd, isActive }) =>
-                            (<TouchableOpacity
-                                style={{
-                                    backgroundColor: isActive ? "#606060" : '#303030',
-                                    marginHorizontal: 10,
-                                    marginVertical: 3,
-                                    padding: 5,
-                                    justifyContent: "center",
-                                    borderRadius: 5,
-                                    borderColor: 'white',
-                                    borderWidth: 1
-                                }}
-                                onPressIn={() => { onDragStart(); setIsOrderChanged(true); }}
-                                onPressOut={onDragEnd}
-                            >
-                                <Text
-                                    style={{
-                                        fontWeight: "bold",
-                                        color: "white",
-                                        fontSize: 18
-                                    }}
-                                >
-                                    {item.name}
-                                </Text>
-                            </TouchableOpacity>)
-                            }
-                            onReordered={onReordered}
-                        />}
-                    </View>
-                </View>
-            </View>
-            <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-around', marginVertical: 10 }}>
-                <TouchableOpacity
-                    style={[styles.actionButton, { borderColor: 'red' }]}
-                    onPress={() => {
-                        router.dismiss();
-                    }}
-                >
-                    <Text style={{ color: 'red' }}>Cancel</Text>
-                </TouchableOpacity>
+                    router.dismiss();
+                }}
+            >
+                <Text style={styles.actionButtonText}>Save Category</Text>
+            </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={[styles.actionButton, { borderColor: 'green' }]}
-                    onPress={async () => {
-                        await update();
-                        if (isOrderChanged) {
-                            await updateIndexes();
-                        }
-                        router.dismiss();
-                    }}
-                >
-                    <Text style={{ color: 'green' }}>Save</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+
+
+
+
+
+
+
+
+
+        </View >
     );
 };
 
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: 'black',
+        alignItems: 'center',
+        // justifyContent: 'center',
+        backgroundColor: theme.colors.background,
+        maxHeight: '100%',
+        paddingBottom: 25,
     },
+    input: {
+        width: '80%',
+        backgroundColor: theme.colors.backgroundSecondary,
+        color: theme.colors.primary_text,
+        borderRadius: 10,
+        padding: 10,
+        // maxWidth: 500,
+    },
+    label: {
+        color: theme.colors.secondary_text,
+        alignSelf: 'flex-start',
+        marginLeft: '10%',
+        marginBottom: 5,
+        marginTop: 15,
+    },
+    actionButton: {
+        marginTop: 25,
+        width: '80%',
+        paddingVertical: 15,
+        alignItems: 'center',
+        borderRadius: 10,
+        backgroundColor: theme.colors.accent,
+        color: theme.colors.primary_text,
+    },
+    actionButtonText: {
+        color: theme.colors.dark_text,
+        fontSize: theme.fontSize.regular,
+    },
+    addCategoryButton: {
+        marginTop: 20,
+        color: theme.colors.accent,
+        fontSize: theme.fontSize.regular,
+    },
+    dragList: {
+        backgroundColor: theme.colors.backgroundSecondary,
+        borderRadius: 10,
+        paddingVertical: 5,
+        paddingRight: 10,
+        paddingLeft: 5,
+        marginTop: 10,
+        width: 500,
+        maxWidth: '80%',
+    },
+    // This wrapper allows the list to grow and fill space
+    listContainer: {
+        flex: 1,
+        width: '100%',
+        alignItems: 'center',
+    },
+
     nameInputContainer: {
         width: '80%',
         height: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    input: {
-        width: '100%',
-        marginVertical: 5,
-        padding: 3,
-        borderColor: 'grey',
-        borderBottomWidth: 1,
-        color: 'white'
     },
     bookingsheader: {
         flexDirection: 'row',
@@ -220,12 +265,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginVertical: 10
     },
-    actionButton: {
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 25,
-        paddingVertical: 10,
-    }
 });
 
 export default EditCategory;

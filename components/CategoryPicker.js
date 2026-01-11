@@ -68,8 +68,9 @@ export default CategoryPicker
 
 const styles = StyleSheet.create({
     picker: {
-        width: '80%',
+        width: '100%',
         maxWidth: 300,
         backgroundColor: theme.colors.backgroundSecondary,
+        borderRadius: 10,
     }
 })

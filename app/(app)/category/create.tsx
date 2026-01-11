@@ -18,7 +18,7 @@ const CreateCategoryScreen = () => {
         <View style={styles.screen}>
 
             <Text style={styles.label}>Category</Text>
-            <CategoryPicker categoryId={categoryParentId} setCategoryId={(input: number) => { setCategoryParentId(input) }} filterChildCategories={null} includeTotal={true} />
+            <CategoryPicker style={{ width: '80%' }} categoryId={categoryParentId} setCategoryId={(input: number) => { setCategoryParentId(input) }} filterChildCategories={null} includeTotal={true} />
 
             <Text style={styles.label}>Name</Text>
             <TextInput
