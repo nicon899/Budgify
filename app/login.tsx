@@ -5,14 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import theme from './theme';
 
 const Login = () => {
-    const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
     const [pwd, setPwd] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
     const { login } = useContext(authContext).actions;
 
     const handleLogin = async () => {
-        const result = await login({ email: email, password: pwd });
+        const result = await login({ name: name, password: pwd });
         if (!result) {
             setErrorMessage('Invalid email or password');
         }
@@ -22,16 +22,16 @@ const Login = () => {
     return (<SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#121212' }}>
         <Text style={{ color: 'white', fontSize: 24, marginBottom: 20 }}>Login</Text>
 
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>Name</Text>
         <TextInput
-            placeholder='Email'
+            placeholder='Name'
             placeholderTextColor="white"
             style={styles.input}
             blurOnSubmit
             autoCapitalize="none"
             autoCorrect={false}
-            value={email}
-            onChangeText={(input) => setEmail(input)}
+            value={name}
+            onChangeText={(input) => setName(input)}
         />
 
         <Text style={styles.label}>Password</Text>

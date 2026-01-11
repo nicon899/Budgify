@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { storageService } from '../util/StorageService';
 
 export type LoginOptions = {
-    email: string;
+    name: string;
     password: string;
 };
 
