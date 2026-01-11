@@ -36,10 +36,6 @@ const TemplateTransaction = props => {
         })();
     }, [transactionId]);
 
-    useEffect(() => {
-        console.log(categoryId)
-    }, [categoryId]);
-
     if (!transactionId) {
         return (<Text>Template Transaction not found!</Text>);
     }
@@ -146,7 +142,6 @@ const TemplateTransaction = props => {
                     style={[styles.actionButton, { borderColor: 'green' }]}
                     onPress={async () => {
                         if (transactionId == null || templateId == null) return;
-                        console.log(categoryId)
                         if (/^[0-9]+(\.[0-9]{1,2})?$/g.test(value)) {
                             await updateTemplateTransaction({
                                 id: transactionId,

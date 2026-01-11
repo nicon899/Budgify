@@ -1,13 +1,14 @@
 import theme from '@/app/theme';
 import alert from '@/components/alert';
 import CategoryPicker from '@/components/CategoryPicker';
+import WebSortableList from '@/components/WebSortableList';
 import { useApi } from '@/hooks/useApi';
 import { Category } from '@/types/Category';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DragList from 'react-native-draglist';
 
 const EditCategory = () => {
@@ -28,20 +29,19 @@ const EditCategory = () => {
 
     const updateData = async (id: number | "total") => {
         const loadedCategory = (id === 'total') ? await getFirstLevelCategories(new Date().toISOString()) : await getCategoryById(id);
-        console.log(loadedCategory);
         if (!loadedCategory) return;
         setCategory(loadedCategory)
     }
 
-    // TODO: Update Indexes when changing subcategory order
     const updateIndexes = async () => {
-        let index = 0;
         if (!category?.children) return;
-        category.children.forEach(cat => {
+        const categoriesToUpdate = [...category.children];
+        let index = 0;
+        categoriesToUpdate.forEach( (cat) => {
             cat.listIndex = index;
             index++;
-        });
-        category.children.forEach(async (cat) => {
+        })
+        categoriesToUpdate.forEach(async (cat) => {
             await updateCategory(cat);
         })
     };
@@ -57,7 +57,8 @@ const EditCategory = () => {
         const copy = [...category.children];
         const removed = copy.splice(fromIndex, 1);
         copy.splice(toIndex, 0, removed[0]);
-        setCategory({ ...category, children: copy })
+        setCategory({ ...category, children: copy });
+        setIsOrderChanged(true);
     }
 
     if (!category) {
@@ -83,11 +84,9 @@ const EditCategory = () => {
                                     text: 'OK', onPress: async () => {
                                         await deleteCategory(category.id)
                                         if (category.parentId) {
-                                            console.log("Navigating to parent category:", category.parentId);
                                             return router.replace(`category/${category.parentId}`);
                                         }
                                         else {
-                                            console.log("Navigating to root category view");
                                             router.dismissAll();
                                             router.replace('/');
                                         }
@@ -118,10 +117,16 @@ const EditCategory = () => {
                 autoCorrect={false}
                 value={category.name}
                 onChangeText={(input) => setCategory({ ...category, name: input })}
+                editable={category.id !== null}
             />
 
             {category.children && <Text style={styles.label}>Sub-Categories</Text>}
-            {category.children && <View style={styles.listContainer}><DragList
+            {(category.children && Platform.OS === 'web') &&
+                <WebSortableList
+                    data={category.children}
+                    onReorder={onReordered}
+                />}
+            {(category.children && Platform.OS !== 'web') && <View style={styles.listContainer}><DragList
                 data={category.children}
                 style={styles.dragList}
                 keyExtractor={(item, index) => `${item.id}`}
@@ -130,7 +135,7 @@ const EditCategory = () => {
                     style={{
 
                     }}
-                    onPressIn={() => { onDragStart(); setIsOrderChanged(true); }}
+                    onPressIn={() => { onDragStart(); }}
                     onPressOut={onDragEnd}
                 >
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -171,7 +176,7 @@ const EditCategory = () => {
             <TouchableOpacity
                 style={[styles.actionButton, { borderColor: 'green' }]}
                 onPress={async () => {
-                    await update();
+                    if (category.id !== null) { await update(); }
                     if (isOrderChanged) {
                         await updateIndexes();
                     }
@@ -251,6 +256,24 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         alignItems: 'center',
+    },
+    webListItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#303030',
+        padding: 12,
+        marginVertical: 4,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#555',
+        width: '80%',
+        alignSelf: 'center'
+    },
+    webItemText: {
+        color: 'white',
+        fontSize: 16,
+        marginLeft: 10,
+        fontWeight: '600'
     },
 
     nameInputContainer: {

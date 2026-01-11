@@ -103,7 +103,6 @@ export function useApi() {
     }
 
     const deleteCategory = async (categoryId: number) => {
-        console.log("Deleting category with ID:", categoryId);
         const res = await fetch(`${BASE_URL}/category/${categoryId}`, {
             headers: {
                 'Content-Type': 'application/json',
@@ -111,7 +110,6 @@ export function useApi() {
             },
             method: 'DELETE',
         });
-        console.log("Delete Category Response:", res);
         return res.json();
     }
 
