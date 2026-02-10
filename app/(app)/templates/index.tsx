@@ -25,22 +25,26 @@ const TemplateScreen = () => {
                 data={templates}
                 keyExtractor={item => `${item.id}`}
                 renderItem={itemData => {
-                    return (<TouchableOpacity style={{ padding: 10, borderTopWidth: 1, borderBottomWidth: 1, borderColor: '#ccc', width: '100%', flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 15, marginVertical: 10 }} onPress={() => router.navigate(`/templates/${itemData.item.id}`)}>
+                    return (<TouchableOpacity style={styles.templateItem}>
                         <Text style={{ fontSize: 18, color: 'white' }}>{itemData.item.name}</Text>
                         <Text style={{ fontSize: 18, color: 'white' }}>{itemData.item.value}</Text>
                     </TouchableOpacity>
                     );
                 }}
             />
-            <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', padding: 10, width: '100%' }}
-                onPress={() => {
-                    router.navigate(`/templates/create`);
-                }}
-            >
-                <Text style={{ color: '#45FF44', fontSize: theme.fontSize.regular }}>Create Template </Text>
-                <MaterialIcons style={{}} name="library-add" size={32} color="#00FF00" />
-            </TouchableOpacity>
+
+            <View style={styles.bottomBar}>
+                <TouchableOpacity
+                    style={styles.createTempButton}
+                    onPress={() => {
+                        router.navigate(`/templates/create`);
+                    }}
+                >
+                    <MaterialIcons style={styles.createTempButtonText} name="library-add" size={32} color="#00FF00" />
+
+                </TouchableOpacity>
+            </View>
+
         </View>
     );
 };
@@ -48,34 +52,48 @@ const TemplateScreen = () => {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: 'black',
-    },
-    nameInputContainer: {
-        width: '80%',
-        height: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    input: {
-        width: '100%',
-        marginVertical: 5,
-        padding: 3,
-        borderColor: 'grey',
-        borderBottomWidth: 1,
-        color: 'white'
-    },
-    bookingsheader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginVertical: 10
+        backgroundColor: theme.colors.background,
+        color: theme.colors.primary_text,
     },
     actionButton: {
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 25,
-        paddingVertical: 10,
-    }
+        marginTop: 25,
+        width: '80%',
+        paddingVertical: 15,
+        alignItems: 'center',
+        borderRadius: 10,
+        backgroundColor: theme.colors.accent,
+        color: theme.colors.primary_text,
+    },
+    actionButtonText: {
+        color: theme.colors.dark_text,
+        fontSize: theme.fontSize.regular,
+    },
+    templateItem: {
+    },
+    bottomBar: {
+        position: 'absolute',
+        bottom: 30, // Abstand vom unteren Bildschirmrand
+        right: 30,  // Abstand vom rechten Rand
+    },
+    createTempButton: {
+        width: 60,
+        height: 60,
+        borderRadius: 30, // Hälfte der Breite/Höhe für einen Kreis
+        backgroundColor: theme.colors.accent,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5, // für Android Schatten
+        shadowColor: '#000', // für iOS Schatten
+        shadowOpacity: 0.3,
+        shadowOffset: { width: 0, height: 3 },
+        shadowRadius: 4,
+    },
+    createTempButtonText: {
+        color: 'white',
+        fontSize: 28,
+        fontWeight: 'bold',
+        lineHeight: 32,
+    },
 });
 
 export default TemplateScreen;

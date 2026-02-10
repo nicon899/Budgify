@@ -1,26 +1,29 @@
 import CategoryItemList from '@/components/CategoryItemList';
 import CustomDatePicker from '@/components/CustomDatePicker';
+import { authContext } from '@/contexts/AuthContext';
 import { useApi } from '@/hooks/useApi';
 import { Category } from '@/types/Category';
-import { Transaction } from '@/types/Transaction';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { Transaction, TransactionMeta } from '@/types/Transaction';
+import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IconButton, Menu, PaperProvider } from 'react-native-paper';
-import theme, { CURRENCY_SYMBOL, FONT_SIZE_LARGE, FONT_SIZE_SMALL, FONT_SIZE_XLARGE } from "../../../theme";
+import theme, { CURRENCY_SYMBOL, FONT_SIZE_LARGE, FONT_SIZE_REGULAR, FONT_SIZE_SMALL, FONT_SIZE_XLARGE } from "../../../theme";
 
 const CategoryScreen = () => {
     const { categoryId: categoryIdParamStr } = useLocalSearchParams();
     const categoryIdParam = categoryIdParamStr ? parseInt(categoryIdParamStr as string, 10) : null;
     const [category, setCategory] = useState<Category | null>(null);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [transactionMeta, setTransactionMeta] = useState<TransactionMeta>({ pages: 0, loadedPages: 0, total: 0 });
     const router = useRouter();
     const [visible, setVisible] = useState(false);
     const [date, _setDate] = useState<Date>(new Date());
     const { getFirstLevelCategories, getCategoryById, getLatestDate, getTransactionsOfCategory } = useApi();
     const isFocused = useIsFocused();
+    const auth = useContext(authContext);
 
     const openMenu = () => setVisible(true);
     const closeMenu = () => setVisible(false);
@@ -37,12 +40,20 @@ const CategoryScreen = () => {
         }
         setCategory(category)
         if (categoryIdParam) {
-            const fetchedTransactions = await getTransactionsOfCategory(categoryIdParam, newDate?.toISOString())
-            setTransactions(fetchedTransactions);
+            const { transactions, transactionMeta } = await getTransactionsOfCategory(categoryIdParam, 1, newDate?.toISOString())
+            setTransactions(transactions);
+            setTransactionMeta(transactionMeta);
         }
         if (!newDate) {
             setDate(new Date(category.latestDate))
         }
+    }
+
+    const getNextTransactionPage = async () => {
+        if (transactionMeta.loadedPages >= transactionMeta.pages || !category || category.id === 'total') return; // No more pages to load      
+        const { transactions: newTransactions, transactionMeta: newTransactionMeta } = await getTransactionsOfCategory(category.id, transactionMeta.loadedPages + 1, date.toISOString())
+        setTransactions([...transactions, ...newTransactions]);
+        setTransactionMeta(newTransactionMeta);
     }
 
     const setDate = (newDate: Date, setByUser: boolean = false) => {
@@ -99,7 +110,7 @@ const CategoryScreen = () => {
                         />
                     }
                 >
-                    <Menu.Item onPress={() => router.navigate(`/settings`)} title="Settings" />
+                    <Menu.Item onPress={() => auth.actions.logout()} title="Log Out" />
                     <Menu.Item onPress={() => router.navigate(`/templates`)} title="Templates" />
                 </Menu>
             </View>
@@ -131,8 +142,16 @@ const CategoryScreen = () => {
                     showBooking={(id: number) => router.navigate(`category/${category.id}/transaction/${id}/edit`)}
                     showCategory={(id: number) => openCategory(id)}
                     showBookings={category.id !== null}
-                />
+                ></CategoryItemList>
             </View>
+            {(category.id !== "total" && transactionMeta.loadedPages < transactionMeta.pages) && <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginTop: 10 }} onPress={() => {
+                getNextTransactionPage();
+            }}>
+                <MaterialCommunityIcons name="sync" size={FONT_SIZE_LARGE} color={theme.colors.blue_text} />
+                <Text style={{ color: theme.colors.blue_text, fontSize: FONT_SIZE_REGULAR }}>
+                    Load More ({transactions.length}/{transactionMeta.total})
+                </Text>
+            </TouchableOpacity>}
         </View >
 
         <View style={styles.transBar}>

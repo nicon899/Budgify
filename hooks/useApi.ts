@@ -3,7 +3,7 @@ import { CategoryBody, TemplateBody, TemplateTransactionBody } from "@/types/Api
 import { Category } from "@/types/Category";
 import { Template } from "@/types/Template";
 import { TemplateTransaction } from "@/types/TemplateTransaction";
-import { Transaction } from "@/types/Transaction";
+import { Transaction, TransactionMeta } from "@/types/Transaction";
 
 export const BASE_URL = "http://217.154.162.22:3000/api";
 
@@ -127,8 +127,8 @@ export function useApi() {
 
     // TRANSACTIONS
 
-    const getTransactionsOfCategory = async (categoryId: number, date: string | null = null) => {
-        const res = await fetch(`${BASE_URL}/category/${categoryId}/transactions${date ? `?date=${date}` : ''}`, {
+    const getTransactionsOfCategory = async (categoryId: number, page: number, date: string | null = null) => {
+        const res = await fetch(`${BASE_URL}/category/${categoryId}/transactions${date ? `?date=${date}&page=${page}` : `?page=${page}`}`, {
             headers: {
                 'Content-Type': 'application/json',
                 authorization: `Bearer ${token}`
@@ -136,11 +136,18 @@ export function useApi() {
             method: 'GET',
         });
         const data = await res.json();
-        const transactions: Transaction[] = data.map(t => ({
+        const transactions: Transaction[] = data.data.map(t => ({
             ...t,
             date: new Date(t.date)
         }))
-        return transactions;
+
+        const transactionMeta: TransactionMeta = {
+            pages: data.meta.totalPages,
+            loadedPages: data.meta.currentPage,
+            total: data.meta.totalItems
+        }
+
+        return { transactions, transactionMeta };
     }
 
     const createTransaction = async (transaction: Transaction) => {

@@ -6,3 +6,9 @@ export type Transaction = {
     date: Date;
     categoryId: number | null;
 }
+
+export type TransactionMeta = {
+    pages: number;
+    loadedPages: number;
+    total: number;
+}
