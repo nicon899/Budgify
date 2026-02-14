@@ -22,10 +22,13 @@ const TemplateScreen = () => {
     return (
         <View style={styles.screen}>
             <FlatList
+                style={styles.templateList}
                 data={templates}
                 keyExtractor={item => `${item.id}`}
                 renderItem={itemData => {
-                    return (<TouchableOpacity style={styles.templateItem}>
+                    return (<TouchableOpacity style={styles.templateItem} onPress={() => {
+                        router.navigate(`/templates/${itemData.item.id}`);
+                    }}>
                         <Text style={{ fontSize: 18, color: 'white' }}>{itemData.item.name}</Text>
                         <Text style={{ fontSize: 18, color: 'white' }}>{itemData.item.value}</Text>
                     </TouchableOpacity>
@@ -54,26 +57,38 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
         color: theme.colors.primary_text,
+        paddingHorizontal: 15,
+        paddingVertical: 10,
     },
-    actionButton: {
-        marginTop: 25,
-        width: '80%',
-        paddingVertical: 15,
-        alignItems: 'center',
-        borderRadius: 10,
-        backgroundColor: theme.colors.accent,
-        color: theme.colors.primary_text,
+    templateList: {
+        backgroundColor: theme.colors.backgroundSecondary,
+        borderRadius: 15,
+        paddingHorizontal: 15,
+        marginTop: 10,
+        paddingVertical: 10,
+        marginBottom: 20,
     },
-    actionButtonText: {
-        color: theme.colors.dark_text,
-        fontSize: theme.fontSize.regular,
-    },
+
     templateItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '100%',
+        color: theme.colors.primary_text,
+        backgroundColor: theme.colors.backgroundTertiary,
+        marginBottom: 5,
+        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
     },
+
     bottomBar: {
-        position: 'absolute',
-        bottom: 30, // Abstand vom unteren Bildschirmrand
-        right: 30,  // Abstand vom rechten Rand
+        marginBottom: 30,
+        marginHorizontal: 30,
+        alignItems: 'flex-end',
+        // position: 'absolute',
+        // bottom: 30, // Abstand vom unteren Bildschirmrand
+        // right: 30,  // Abstand vom rechten Rand
     },
     createTempButton: {
         width: 60,
@@ -94,6 +109,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         lineHeight: 32,
     },
+
+
+
+
+
 });
 
 export default TemplateScreen;
