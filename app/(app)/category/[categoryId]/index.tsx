@@ -4,13 +4,13 @@ import { authContext } from '@/contexts/AuthContext';
 import { useApi } from '@/hooks/useApi';
 import { Category } from '@/types/Category';
 import { Transaction, TransactionMeta } from '@/types/Transaction';
-import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome6 } from '@expo/vector-icons';
 import { useIsFocused } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IconButton, Menu, PaperProvider } from 'react-native-paper';
-import theme, { CURRENCY_SYMBOL, FONT_SIZE_LARGE, FONT_SIZE_REGULAR, FONT_SIZE_SMALL, FONT_SIZE_XLARGE } from "../../../theme";
+import theme, { CURRENCY_SYMBOL, FONT_SIZE_LARGE, FONT_SIZE_SMALL, FONT_SIZE_XLARGE } from "../../../theme";
 
 const CategoryScreen = () => {
     const { categoryId: categoryIdParamStr } = useLocalSearchParams();
@@ -142,16 +142,9 @@ const CategoryScreen = () => {
                     showBooking={(id: number) => router.navigate(`category/${category.id}/transaction/${id}/edit`)}
                     showCategory={(id: number) => openCategory(id)}
                     showBookings={category.id !== null}
+                    loadMore={getNextTransactionPage}
                 ></CategoryItemList>
             </View>
-            {(category.id !== "total" && transactionMeta.loadedPages < transactionMeta.pages) && <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, marginTop: 10 }} onPress={() => {
-                getNextTransactionPage();
-            }}>
-                <MaterialCommunityIcons name="sync" size={FONT_SIZE_LARGE} color={theme.colors.blue_text} />
-                <Text style={{ color: theme.colors.blue_text, fontSize: FONT_SIZE_REGULAR }}>
-                    Load More ({transactions.length}/{transactionMeta.total})
-                </Text>
-            </TouchableOpacity>}
         </View >
 
         <View style={styles.transBar}>

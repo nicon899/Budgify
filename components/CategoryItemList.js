@@ -9,6 +9,8 @@ const CategoryItemList = props => {
             <FlatList
                 data={[...props.categories, ...props.bookings]}
                 keyExtractor={item => `${item.categoryId ? 'transaction' : 'category'}_${item.id}`}
+                onEndReached={props.loadMore}
+                onEndReachedThreshold={0.5}
                 renderItem={itemData => {
                     if (!itemData.item.categoryId) {
                         return <CategoryItem showContent={(id) => props.showCategory(id)} item={itemData.item} />
