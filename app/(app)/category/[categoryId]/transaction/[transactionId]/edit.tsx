@@ -1,12 +1,13 @@
 import theme, { CURRENCY_SYMBOL } from '@/app/theme';
+import alert from '@/components/alert';
 import CategoryPicker from '@/components/CategoryPicker';
 import DatePicker from '@/components/DatePicker';
 import { useApi } from '@/hooks/useApi';
 import { Transaction } from '@/types/Transaction';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
-
+import { Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
 
 const EditScreen = props => {
     const { transactionId: transactionIdParamStr, isPositive: isPositiveParam } = useLocalSearchParams();
@@ -17,7 +18,7 @@ const EditScreen = props => {
     const [detail, setDetail] = useState('');
     const [date, setDate] = useState(new Date());
     const [isPositive, setIsPositive] = useState(isPositiveParam === 'true');
-    const { getTransactionById, updateTransaction } = useApi()
+    const { getTransactionById, updateTransaction, deleteTransaction } = useApi()
     const router = useRouter();
 
     useEffect(() => {
@@ -39,6 +40,27 @@ const EditScreen = props => {
     return (
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
+
+                <View style={styles.topBar}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            alert(
+                                'Delete Transaction',
+                                'This Transaction will be removed for good!',
+                                [{ text: 'Cancel', style: 'cancel', onPress: () => { } },
+                                {
+                                    text: 'OK', onPress: async () => {
+                                       await deleteTransaction(transactionId);
+                                        router.dismiss();
+                                    }
+                                }
+                                ], { cancelable: true }
+                            )
+                        }}
+                    >
+                        <MaterialCommunityIcons name="delete" size={theme.fontSize.xxlarge} color="red" />
+                    </TouchableOpacity>
+                </View>
 
                 <Text style={styles.label}>Category</Text>
                 <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
@@ -93,7 +115,6 @@ const EditScreen = props => {
                     setTime={false}
                 />
 
-
                 <Text style={styles.label}>Details</Text>
                 <TextInput
                     style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
@@ -105,8 +126,6 @@ const EditScreen = props => {
                     multiline={true}
                     onChangeText={(input) => setDetail(input)}
                 />
-
-
 
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'green' }]}
@@ -223,6 +242,12 @@ const styles = StyleSheet.create({
         marginLeft: '10%',
         marginBottom: 5,
         marginTop: 15,
+    },
+    topBar: {
+        position: 'absolute',
+        top: 10,
+        right: 20,
+        zIndex: 1,
     }
 });
 

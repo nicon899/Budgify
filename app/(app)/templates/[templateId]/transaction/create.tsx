@@ -59,14 +59,13 @@ const TemplateTransaction = props => {
                 <Text style={styles.label}>Default Name</Text>
                 <TextInput
                     placeholderTextColor="grey"
-                    style={[styles.input, { marginBottom: 25 }]}
+                    style={[styles.input]}
                     blurOnSubmit
                     autoCapitalize="none"
                     autoCorrect={false}
                     value={name}
                     onChangeText={(input) => setName(input)}
                 />
-
 
                 <Text style={styles.label}>Date Offset</Text>
                 <TextInput
