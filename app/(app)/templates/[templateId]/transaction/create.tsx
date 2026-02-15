@@ -1,5 +1,5 @@
+import theme, { CURRENCY_SYMBOL } from '@/app/theme';
 import { useApi } from '@/hooks/useApi';
-import { AntDesign } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert, Platform, ScrollView, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
@@ -21,45 +21,17 @@ const TemplateTransaction = props => {
         <ScrollView style={{ flex: 1, backgroundColor: 'black' }}>
             <View style={styles.screen}>
 
+                <Text style={styles.label}>Category</Text>
                 <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
 
-                <View style={{ flexDirection: 'row', width: '75%', alignItems: 'center', marginBottom: 25, backgroundColor: '#222', padding: 5, borderRadius: 10, justifyContent: 'space-between' }}>
-                    <Text style={{ color: 'white', marginRight: 10 }}>Date Offset</Text>
+                <Text style={styles.label}>Value</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {!isPositive && <Text style={styles.negativeSymbol}>-</Text>}
+                    <Text style={styles.currencySymbol}>{CURRENCY_SYMBOL}</Text>
                     <TextInput
-                        style={[styles.dateInput, { width: '50%' }]}
+                        style={[styles.valueInput]}
                         placeholderTextColor="white"
-                        placeholder='0'
-                        blurOnSubmit
-                        autoCapitalize="none"
-                        autoCorrect={false}
-                        value={dateOffset}
-                        keyboardType='number-pad'
-                        onChangeText={(input) => setDateOffset(input)}
-                    />
-                </View>
-
-
-                <TextInput
-                    placeholder='Default Name'
-                    placeholderTextColor="grey"
-                    style={[styles.input, { marginBottom: 25 }]}
-                    blurOnSubmit
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={name}
-                    onChangeText={(input) => setName(input)}
-                />
-
-                <View style={styles.valueInput}>
-                    <TouchableOpacity
-                        onPress={() => setIsPositive(!isPositive)}   >
-                        {isPositive && <AntDesign style={{ marginRight: '10%' }} name="plus-circle" size={32} color="green" />}
-                        {!isPositive && <AntDesign style={{ marginRight: '10%' }} name="minus-circle" size={32} color="red" />}
-                    </TouchableOpacity>
-                    <TextInput
-                        style={[styles.input, { width: '50%' }]}
-                        placeholderTextColor="white"
-                        placeholder='Amount'
+                        placeholder='00,00'
                         blurOnSubmit
                         autoCapitalize="none"
                         autoCorrect={false}
@@ -69,10 +41,49 @@ const TemplateTransaction = props => {
                     />
                 </View>
 
+                <View style={styles.expenseIncomeContainer}>
+                    <TouchableOpacity
+                        onPress={() => setIsPositive(false)}   >
+                        <Text style={isPositive ? styles.expenseIncomeText : [styles.expenseIncomeTextSelected, {
+                            backgroundColor: theme.colors.negative_text,
+                        }]}>Expense</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => setIsPositive(true)}   >
+                        <Text style={isPositive ? [styles.expenseIncomeTextSelected, {
+                            backgroundColor: theme.colors.positive_text, color: theme.colors.dark_text
+                        }] : styles.expenseIncomeText}>Income</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Text style={styles.label}>Default Name</Text>
                 <TextInput
-                    placeholder='Details'
+                    placeholderTextColor="grey"
+                    style={[styles.input, { marginBottom: 25 }]}
+                    blurOnSubmit
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={name}
+                    onChangeText={(input) => setName(input)}
+                />
+
+
+                <Text style={styles.label}>Date Offset</Text>
+                <TextInput
+                    style={styles.input}
                     placeholderTextColor="white"
-                    style={[styles.input, { marginBottom: 50 }]}
+                    placeholder='0'
+                    blurOnSubmit
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={dateOffset}
+                    keyboardType='number-pad'
+                    onChangeText={(input) => setDateOffset(input)}
+                />
+
+                <Text style={styles.label}>Details</Text>
+                <TextInput
+                    style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
                     blurOnSubmit
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -81,18 +92,7 @@ const TemplateTransaction = props => {
                     multiline={true}
                     onChangeText={(input) => setDetails(input)}
                 />
-            </View>
-
-            <View style={{ width: '80%', flexDirection: 'row', justifyContent: 'space-between', alignSelf: 'center' }}>
-                <TouchableOpacity
-                    style={[styles.actionButton, { borderColor: 'red' }]}
-                    onPress={() => {
-                        router.dismiss();
-                    }}
-                >
-                    <Text style={{ color: 'red' }}>Cancel</Text>
-                </TouchableOpacity>
-
+                
                 <TouchableOpacity
                     style={[styles.actionButton, { borderColor: 'green' }]}
                     onPress={async () => {
@@ -119,7 +119,7 @@ const TemplateTransaction = props => {
                         }
                     }}
                 >
-                    <Text style={{ color: 'green' }}>OK</Text>
+                    <Text style={styles.actionButtonText}>Save Transaction</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
@@ -133,34 +133,81 @@ const styles = StyleSheet.create({
         paddingTop: 20,
     },
     input: {
-        width: '75%',
-        padding: 3,
-        borderColor: 'grey',
-        borderWidth: 1,
-        color: 'white',
-        borderRadius: 5,
+        width: '80%',
+        backgroundColor: theme.colors.backgroundSecondary,
+        color: theme.colors.primary_text,
+        borderRadius: 10,
+        padding: 10,
     },
     dateInput: {
-        borderColor: 'grey',
-        borderWidth: 1,
-        color: 'white',
-        borderRadius: 5,
+        width: '80%',
+        backgroundColor: theme.colors.backgroundSecondary,
+        borderRadius: 10,
+        padding: 10,
     },
     valueInput: {
-        flexDirection: 'row',
-        width: '75%',
-        alignItems: 'center',
-        marginBottom: 25
+        color: theme.colors.primary_text,
+        fontSize: theme.fontSize.xxxlarge,
+        maxWidth: 256,
+        // // width: '70%',
+        // textAlign: 'center',
     },
     actionButton: {
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 25,
-        paddingVertical: 10,
+        marginTop: 25,
+        width: '80%',
+        paddingVertical: 15,
+        alignItems: 'center',
+        borderRadius: 10,
+        backgroundColor: theme.colors.accent,
+        color: theme.colors.primary_text,
+    },
+    actionButtonText: {
+        color: theme.colors.dark_text,
+        fontSize: theme.fontSize.regular,
     },
     categoryPicker: {
         width: '80%',
-        marginBottom: 20,
+        backgroundColor: theme.colors.backgroundSecondary,
+        borderRadius: 10,
+    },
+    currencySymbol: {
+        color: theme.colors.primary_text,
+        fontSize: theme.fontSize.xxxlarge,
+        marginRight: 5,
+    },
+    negativeSymbol: {
+        color: theme.colors.secondary_text,
+        fontSize: theme.fontSize.xxxlarge,
+        // marginRight: 5,
+        left: -20,
+        position: 'absolute',
+    },
+    expenseIncomeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 5,
+        width: '80%',
+        justifyContent: 'space-evenly',
+        backgroundColor: theme.colors.backgroundSecondary,
+        borderRadius: 10,
+    },
+    expenseIncomeText: {
+        color: theme.colors.primary_text,
+        fontSize: theme.fontSize.regular,
+    },
+    expenseIncomeTextSelected: {
+        color: theme.colors.primary_text,
+        fontSize: theme.fontSize.regular,
+        paddingVertical: 2.5,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+    },
+    label: {
+        color: theme.colors.secondary_text,
+        alignSelf: 'flex-start',
+        marginLeft: '10%',
+        marginBottom: 5,
+        marginTop: 15,
     }
 });
 
