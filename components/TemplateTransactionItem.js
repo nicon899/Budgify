@@ -19,7 +19,7 @@ const TemplateTransactionItem = props => {
     }, [props.date, props.dateOffset]);
 
     useEffect(() => {
-        if(props.categoryId == null) return
+        if (props.categoryId == null) return
         (async () => {
             const fetchedLabel = getCategoryPathLabelById(props.categoryId)
             setCategoryLabel(fetchedLabel)
@@ -31,7 +31,8 @@ const TemplateTransactionItem = props => {
             onPress={() => {
                 props.onPress();
             }}>
-            <View style={[styles.item]}>
+
+            {/* <View style={[styles.item]}>
                 <View><Text style={{ color: 'grey', fontSize: theme.fontSize.regular }}>{categoryLabel}</Text></View>
                 <View style={styles.itemName}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, maxWidth: '80%' }}>
@@ -43,35 +44,51 @@ const TemplateTransactionItem = props => {
                     </View>
                     <Text numberOfLines={1} style={{ color: props.value > 0 ? 'green' : 'red', fontSize: theme.fontSize.large, fontFamily: 'JetBrainsMono' }}>{props.value.toFixed(2)}</Text>
                 </View>
+            </View> */}
+
+            <View style={[styles.item]}>
+                <View style={styles.item_info}>
+                    <Text numberOfLines={1} adjustsFontSizeToFit style={styles.item_name}>{props.name}</Text>
+                    <Text numberOfLines={1} style={{ color: 'grey', fontSize: theme.fontSize.regular }}>{""
+                            + (props.executionDate.getDate() < 10 ? "0" + props.executionDate.getDate() : props.executionDate.getDate()) + "."
+                            + (props.executionDate.getMonth() < 9 ? "0" + (props.executionDate.getMonth() + 1) : (props.executionDate.getMonth() + 1)) + "."
+                            + props.executionDate.getFullYear()}</Text>
+                </View>
+                    <Text numberOfLines={1} style={{ color: props.value > 0 ? 'green' : 'red', fontSize: theme.fontSize.large, fontFamily: 'JetBrainsMono' }}>{props.value.toFixed(2)}</Text>
             </View>
+
         </TouchableOpacity>
     );
 };
 
 const styles = StyleSheet.create({
     item: {
-        flexDirection: 'column',
-        marginVertical: 5,
-        marginHorizontal: 15,
-        paddingHorizontal: 5,
-        borderBottomColor: '#333333',
-        borderBottomWidth: 0.5,
-        justifyContent: 'space-between',
-        backgroundColor: '#1e1e1e',
-        borderRadius: 5,
-        paddingVertical: 5
-    },
-    itemName: {
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 3,
-        paddingHorizontal: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderBottomColor: '#333333',
+        borderBottomWidth: 0.5,
         justifyContent: 'space-between',
-        color: 'white'
+        color: theme.colors.primary_text,
     },
-    dateOffset: {
-        color: 'grey',
+    item_info: {
+        maxWidth: '70%',
+    },
+    item_name: {
+        color: theme.colors.primary_text,
+        fontSize: theme.fontSize.regular,
+        fontWeight: 'bold',
+    },
+    valueText: {
+        fontSize: theme.fontSize.regular,
+        fontFamily: 'JetBrainsMono',
+        color: theme.colors.primary_text,
+    },
+    dateText: {
+        color: theme.colors.secondary_text,
+        fontSize: 12,
     }
 });
 

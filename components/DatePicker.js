@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'red',
         flexDirection: 'row',
         alignItems: 'center',
-        // justifyContent: 'center',
+        justifyContent: 'center',
     },
     btn: {
         flexDirection: 'row',

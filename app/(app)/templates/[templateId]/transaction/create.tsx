@@ -138,12 +138,6 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 10,
     },
-    dateInput: {
-        width: '80%',
-        backgroundColor: theme.colors.backgroundSecondary,
-        borderRadius: 10,
-        padding: 10,
-    },
     valueInput: {
         color: theme.colors.primary_text,
         fontSize: theme.fontSize.xxxlarge,

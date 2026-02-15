@@ -6,7 +6,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useIsFocused } from "@react-navigation/native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { FlatList, TextInput, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import TemplateTransactionItem from "../../../../components/TemplateTransactionItem";
 import alert from "../../../../components/alert";
 
@@ -50,38 +50,32 @@ const TemplatesScreen = () => {
     }, [templateId, isFocused]);
 
     return (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '90%', marginTop: 20, marginBottom: 10, borderBottomWidth: 1, borderBottomColor: 'grey', paddingBottom: 5 }}>
-                <TextInput
-                    placeholder='Template Name'
-                    placeholderTextColor="grey"
-                    style={[styles.input, { marginBottom: 25 }]}
-                    blurOnSubmit
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={template?.name}
-                    onChangeText={(input) => { setTemplate({ ...template, name: input }); setNameChanged(true) }}
-                />
-                {nameChanged && <TouchableOpacity
-                    style={{ maxWidth: '15%' }}
-                    onPress={() => {
-                        if (!template) return
-                        updateTemplate(template)
-                        setNameChanged(false)
-                    }}
-                >
-                    <MaterialCommunityIcons name="content-save-alert" size={theme.fontSize.large} color="white" />
-                </TouchableOpacity>}
-                <TouchableOpacity
-                    style={{ maxWidth: '15%' }}
-                    onPress={() => {
-                        router.navigate(`templates/${templateId}/transaction/create`);
-                    }}
-                >
-                    <MaterialCommunityIcons name="book-plus" size={theme.fontSize.large} color="white" />
-                </TouchableOpacity>
-            </View>
+        <View style={styles.screen}>
 
+            {nameChanged && <TouchableOpacity
+                style={{ maxWidth: '15%' }}
+                onPress={() => {
+                    if (!template) return
+                    updateTemplate(template)
+                    setNameChanged(false)
+                }}
+            >
+                <MaterialCommunityIcons name="content-save-alert" size={theme.fontSize.large} color="white" />
+            </TouchableOpacity>}
+
+            <Text style={styles.label}>Name</Text>
+            <TextInput
+                placeholder='Template Name'
+                placeholderTextColor="grey"
+                style={[styles.input]}
+                blurOnSubmit
+                autoCapitalize="none"
+                autoCorrect={false}
+                value={template?.name}
+                onChangeText={(input) => { setTemplate({ ...template, name: input }); setNameChanged(true) }}
+            />
+
+            <Text style={styles.label}>Datum</Text>
             <DatePicker
                 style={styles.dateInput}
                 date={date}
@@ -89,10 +83,11 @@ const TemplatesScreen = () => {
                 setTime={false}
             />
 
+            <Text style={styles.label}>Datum</Text>
             <TextInput
                 placeholder='Default Name'
                 placeholderTextColor="grey"
-                style={[styles.input, { marginBottom: 25 }]}
+                style={[styles.input]}
                 blurOnSubmit
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -100,7 +95,9 @@ const TemplatesScreen = () => {
                 onChangeText={(input) => setName(input)}
             />
 
+            <Text style={styles.label}>Transactions</Text>
             {template && <FlatList
+                style={styles.categoryList}
                 data={template.templateTransactions}
                 keyExtractor={item => `${item.id}`}
                 renderItem={itemData => {
@@ -119,35 +116,107 @@ const TemplatesScreen = () => {
                 }}
             />}
 
-            <TouchableOpacity
-                style={{ position: 'absolute', bottom: 30, right: 30, backgroundColor: '#1E90FF', padding: 15, borderRadius: 50, elevation: 5 }}
+            <View style={styles.transBarLeft}>
+                <TouchableOpacity
+                    style={styles.transButton}
+                    onPress={() => {
+                        router.navigate(`templates/${templateId}/transaction/create`);
+                    }}
+                >
+                    <MaterialCommunityIcons name="book-plus" size={theme.fontSize.xlarge} color="white" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.transButton}
 
-                onPress={() => {
-                    executeTemplateDialog();
-                }}
-            >
-                <MaterialCommunityIcons name="clipboard-text-play-outline" size={theme.fontSize.xlarge} color="white" />
-            </TouchableOpacity>
+                    onPress={() => {
+                        executeTemplateDialog();
+                    }}
+                >
+                    <MaterialCommunityIcons name="clipboard-text-play-outline" size={theme.fontSize.xlarge} color="white" />
+                </TouchableOpacity>
+            </View>
 
 
         </View>
     );
 }
 
-const styles = {
-    dateInput: {
-        borderColor: 'grey',
-        color: 'white',
-        borderRadius: 5,
+const styles = StyleSheet.create({
+    screen: {
+        alignItems: 'center',
+        backgroundColor: 'black',
+        paddingTop: 20,
+        flex: 1,
+    },
+    header: {
+        // flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: '90%',
+        marginTop: 20,
+        marginBottom: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: 'grey',
+        paddingBottom: 5
     },
     input: {
-        width: '75%',
-        padding: 3,
-        borderColor: 'grey',
-        borderWidth: 1,
-        color: 'white',
-        borderRadius: 5,
+        width: '80%',
+        backgroundColor: theme.colors.backgroundSecondary,
+        color: theme.colors.primary_text,
+        borderRadius: 10,
+        padding: 10,
     },
-};
+    label: {
+        color: theme.colors.secondary_text,
+        alignSelf: 'flex-start',
+        marginLeft: '10%',
+        marginBottom: 5,
+        marginTop: 15,
+    }, dateInput: {
+        width: '80%',
+        backgroundColor: theme.colors.backgroundSecondary,
+        borderRadius: 10,
+        padding: 10,
+    },
+    transBarLeft: {
+        position: 'absolute',
+        bottom: 30, // Abstand vom unteren Bildschirmrand
+        right: 30,  // Abstand vom rechten Rand,
+        flexDirection: 'row',
+        gap: 15,
+    },
+    transBar: {
+        position: 'absolute',
+        bottom: 30, // Abstand vom unteren Bildschirmrand
+        right: 30,  // Abstand vom rechten Rand
+    },
+    transButton: {
+        width: 60,
+        height: 60,
+        borderRadius: 30, // Hälfte der Breite/Höhe für einen Kreis
+        backgroundColor: theme.colors.accent,
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 5, // für Android Schatten
+        shadowColor: '#000', // für iOS Schatten
+        shadowOpacity: 0.3,
+        shadowOffset: { width: 0, height: 3 },
+        shadowRadius: 4,
+    },
+    transButtonText: {
+        color: 'white',
+        fontSize: 28,
+        fontWeight: 'bold',
+        lineHeight: 32,
+    },
+       categoryList: {
+        backgroundColor: theme.colors.backgroundSecondary,
+        borderRadius: 15,
+        paddingHorizontal: 15,
+        marginTop: 10,
+        paddingVertical: 10,
+        width: '80%',
+    },
+});
 
 export default TemplatesScreen;
