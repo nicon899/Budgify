@@ -49,12 +49,12 @@ const TemplateTransactionItem = props => {
             <View style={[styles.item]}>
                 <View style={styles.item_info}>
                     <Text numberOfLines={1} adjustsFontSizeToFit style={styles.item_name}>{props.name}</Text>
-                    <Text numberOfLines={1} style={{ color: 'grey', fontSize: theme.fontSize.regular }}>{""
-                            + (props.executionDate.getDate() < 10 ? "0" + props.executionDate.getDate() : props.executionDate.getDate()) + "."
-                            + (props.executionDate.getMonth() < 9 ? "0" + (props.executionDate.getMonth() + 1) : (props.executionDate.getMonth() + 1)) + "."
-                            + props.executionDate.getFullYear()}</Text>
+                    <Text numberOfLines={1} style={styles.dateText}>{""
+                        + (props.executionDate.getDate() < 10 ? "0" + props.executionDate.getDate() : props.executionDate.getDate()) + "."
+                        + (props.executionDate.getMonth() < 9 ? "0" + (props.executionDate.getMonth() + 1) : (props.executionDate.getMonth() + 1)) + "."
+                        + props.executionDate.getFullYear()}</Text>
                 </View>
-                    <Text numberOfLines={1} style={{ color: props.value > 0 ? 'green' : 'red', fontSize: theme.fontSize.large, fontFamily: 'JetBrainsMono' }}>{props.value.toFixed(2)}</Text>
+                <Text numberOfLines={1} style={[styles.valueText, { color: props.value > 0 ? theme.colors.positive_text : theme.colors.negative_text }]}>{props.value.toFixed(2)}</Text>
             </View>
 
         </TouchableOpacity>
