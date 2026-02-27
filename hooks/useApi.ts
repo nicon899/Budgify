@@ -128,7 +128,7 @@ export function useApi() {
     // TRANSACTIONS
 
     const getTransactionsOfCategory = async (categoryId: number, page: number, date: string | null = null) => {
-        const res = await fetch(`${BASE_URL}/category/${categoryId}/transactions${date ? `?date=${date}&page=${page}` : `?page=${page}`}`, {
+        const res = await fetch(`${BASE_URL}/category/${categoryId}/transactions${date ? `?date=${date}&page=${page}&limit=20` : `?page=${page}&limit=20`}`, {
             headers: {
                 'Content-Type': 'application/json',
                 authorization: `Bearer ${token}`
