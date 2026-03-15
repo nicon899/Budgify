@@ -22,6 +22,7 @@ const TemplateTransactionItem = props => {
         if (props.categoryId == null) return
         (async () => {
             const fetchedLabel = getCategoryPathLabelById(props.categoryId)
+            console.log("Fetched category label for id " + props.categoryId + ": " + fetchedLabel)
             setCategoryLabel(fetchedLabel)
         })()
     }, [props.categoryId])
@@ -48,6 +49,7 @@ const TemplateTransactionItem = props => {
 
             <View style={[styles.item]}>
                 <View style={styles.item_info}>
+                    <Text numberOfLines={1} adjustsFontSizeToFit style={styles.item_name}>{categoryLabel}</Text>
                     <Text numberOfLines={1} adjustsFontSizeToFit style={styles.item_name}>{props.name}</Text>
                     <Text numberOfLines={1} style={styles.dateText}>{""
                         + (props.executionDate.getDate() < 10 ? "0" + props.executionDate.getDate() : props.executionDate.getDate()) + "."
