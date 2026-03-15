@@ -27,7 +27,6 @@ const Login = () => {
     const { login } = useContext(authContext).actions;
 
     const handleLogin = async (loginName: string, loginPwd: string) => {
-        console.log('Attempting login with:', loginName, loginPwd);
         const result = await login({ name: loginName, password: loginPwd });
         if (!result) {
             return setErrorMessage('Invalid email or password');

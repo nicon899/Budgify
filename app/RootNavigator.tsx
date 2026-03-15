@@ -1,14 +1,22 @@
 import { authContext } from '@/contexts/AuthContext';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Login from './login';
 
 export default function FinanceStackNavigator() {
     const auth = useContext(authContext);
-    const validToken = auth.token != null && auth.token !== undefined && auth.token !== '' && auth.token !== 'null' && auth.token !== 'undefined';
+    const [isValidToken, setIsValidToken] = useState(auth.token != null && auth.token !== undefined && auth.token !== '' && auth.token !== 'null' && auth.token !== 'undefined');
+
+    useEffect(() => {
+        const isValidTokenTmp = auth.token != null && auth.token !== undefined && auth.token !== '' && auth.token !== 'null' && auth.token !== 'undefined';
+        setIsValidToken(isValidTokenTmp);
+        if (!isValidTokenTmp) {
+            auth.actions.logout();
+        }
+    }, [auth.actions, auth.token]);
 
     let headerShown = useRef(Platform.OS === 'web' ? true : true);
 
@@ -26,7 +34,7 @@ export default function FinanceStackNavigator() {
         );
     }
 
-    if (!validToken) {
+    if (!isValidToken) {
         return <Login />
     }
 
