@@ -50,7 +50,7 @@ const EditScreen = props => {
                                 [{ text: 'Cancel', style: 'cancel', onPress: () => { } },
                                 {
                                     text: 'OK', onPress: async () => {
-                                       await deleteTransaction(transactionId);
+                                        await deleteTransaction(transactionId);
                                         router.dismiss();
                                     }
                                 }
@@ -64,6 +64,24 @@ const EditScreen = props => {
 
                 <Text style={styles.label}>Category</Text>
                 <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
+
+                <Text style={styles.label}>Name</Text>
+                <TextInput
+                    style={[styles.input]}
+                    blurOnSubmit
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={name}
+                    onChangeText={(input) => setName(input)}
+                />
+
+                <Text style={styles.label}>Date</Text>
+                <DatePicker
+                    style={styles.dateInput}
+                    date={date}
+                    setDate={setDate}
+                    setTime={false}
+                />
 
                 <Text style={styles.label}>Value</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -96,24 +114,6 @@ const EditScreen = props => {
                         }] : styles.expenseIncomeText}>Income</Text>
                     </TouchableOpacity>
                 </View>
-
-                <Text style={styles.label}>Name</Text>
-                <TextInput
-                    style={[styles.input]}
-                    blurOnSubmit
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={name}
-                    onChangeText={(input) => setName(input)}
-                />
-
-                <Text style={styles.label}>Date</Text>
-                <DatePicker
-                    style={styles.dateInput}
-                    date={date}
-                    setDate={setDate}
-                    setTime={false}
-                />
 
                 <Text style={styles.label}>Details</Text>
                 <TextInput

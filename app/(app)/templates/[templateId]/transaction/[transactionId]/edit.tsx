@@ -69,6 +69,30 @@ const TemplateTransaction = props => {
                 <Text style={styles.label}>Category</Text>
                 <CategoryPicker style={styles.categoryPicker} categoryId={categoryId} setCategoryId={setCategoryId} />
 
+                <Text style={styles.label}>Default Name</Text>
+                <TextInput
+                    placeholderTextColor="grey"
+                    style={[styles.input]}
+                    blurOnSubmit
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={name}
+                    onChangeText={(input) => setName(input)}
+                />
+
+                <Text style={styles.label}>Date Offset</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholderTextColor="white"
+                    placeholder='0'
+                    blurOnSubmit
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={dateOffset}
+                    keyboardType='number-pad'
+                    onChangeText={(input) => setDateOffset(input)}
+                />
+
                 <Text style={styles.label}>Value</Text>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                     {!isPositive && <Text style={styles.negativeSymbol}>-</Text>}
@@ -100,30 +124,6 @@ const TemplateTransaction = props => {
                         }] : styles.expenseIncomeText}>Income</Text>
                     </TouchableOpacity>
                 </View>
-
-                <Text style={styles.label}>Default Name</Text>
-                <TextInput
-                    placeholderTextColor="grey"
-                    style={[styles.input]}
-                    blurOnSubmit
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={name}
-                    onChangeText={(input) => setName(input)}
-                />
-
-                <Text style={styles.label}>Date Offset</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholderTextColor="white"
-                    placeholder='0'
-                    blurOnSubmit
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    value={dateOffset}
-                    keyboardType='number-pad'
-                    onChangeText={(input) => setDateOffset(input)}
-                />
 
                 <Text style={styles.label}>Details</Text>
                 <TextInput
