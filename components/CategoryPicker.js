@@ -4,6 +4,8 @@ import { Picker } from '@react-native-picker/picker';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+const TOTAL_VALUE = '__total__';
+
 const CategoryPicker = props => {
     const [pickerItems, setPickerItems] = useState([]);
     const { getPossibleParents, getAllCategories } = useApi()
@@ -39,9 +41,9 @@ const CategoryPicker = props => {
                 newPickerItems.push(
                     <Picker.Item
                         style={{ color: theme.colors.dark_text }}
-                        key={c.id}
+                        key={c.id ?? TOTAL_VALUE}
                         label={c.path}
-                        value={c.id}
+                        value={c.id ?? TOTAL_VALUE}
                     />
                 )
             });
@@ -53,10 +55,10 @@ const CategoryPicker = props => {
     return (
         <View style={[styles.picker, props.style]}>
             {pickerItems.length > 0 && <Picker
-                selectedValue={props.categoryId}
+                selectedValue={props.categoryId == null && props.includeTotal ? TOTAL_VALUE : props.categoryId}
                 style={{ color: theme.colors.primary_text, textAlign: 'center', backgroundColor: 'transparent' }}
                 onValueChange={(itemValue, itemIndex) => {
-                    props.setCategoryId(itemValue);
+                    props.setCategoryId(itemValue === TOTAL_VALUE ? null : itemValue);
                 }}>
                 {pickerItems}
             </Picker>}

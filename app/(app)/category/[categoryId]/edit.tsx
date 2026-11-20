@@ -35,15 +35,11 @@ const EditCategory = () => {
 
     const updateIndexes = async () => {
         if (!category?.children) return;
-        const categoriesToUpdate = [...category.children];
-        let index = 0;
-        categoriesToUpdate.forEach( (cat) => {
-            cat.listIndex = index;
-            index++;
-        })
-        categoriesToUpdate.forEach(async (cat) => {
-            await updateCategory(cat);
-        })
+        const categoriesToUpdate = category.children.map((cat, index) => ({
+            ...cat,
+            listIndex: index,
+        }));
+        await Promise.all(categoriesToUpdate.map((cat) => updateCategory(cat)));
     };
 
     const update = async () => {
@@ -105,7 +101,7 @@ const EditCategory = () => {
             {category.id !== null && category.id !== 'total' && < View style={{ width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={styles.label}>Category</Text>
                 <CategoryPicker categoryId={category.parentId} style={{ width: '80%' }}
-                    setCategoryId={(input: number) => { setCategory({ ...category, parentId: input }) }}
+                    setCategoryId={(input: number | null) => { setCategory({ ...category, parentId: input }) }}
                     filterChildCategories={category.id} includeTotal={true} /> </View>
             }
 

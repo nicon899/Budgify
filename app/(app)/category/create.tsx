@@ -10,7 +10,8 @@ const CreateCategoryScreen = () => {
     const listIndex = listIndexParamStr != null ? Number(listIndexParamStr) : 999999999
     const [name, setName] = useState('');
     const router = useRouter();
-    const [categoryParentId, setCategoryParentId] = useState<number | null>(parentIdParamStr != null ? Number(parentIdParamStr) : null);
+    const parsedParentId = parentIdParamStr != null && parentIdParamStr !== 'null' && parentIdParamStr !== '' ? Number(parentIdParamStr) : null;
+    const [categoryParentId, setCategoryParentId] = useState<number | null>(Number.isNaN(parsedParentId) ? null : parsedParentId);
     const { createCategory } = useApi()
 
 
