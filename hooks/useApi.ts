@@ -78,6 +78,41 @@ export function useApi() {
         return res.json();
     }
 
+    const getCategoryTree = async (): Promise<Category[]> => {
+        const root = await getFirstLevelCategories();
+        if (!root || !Array.isArray(root.children)) return [];
+
+        const hydrateCategory = async (category: Category): Promise<Category> => {
+            if (Array.isArray(category.children)) {
+                const hydratedChildren = await Promise.all(category.children.map(hydrateCategory));
+                return { ...category, children: hydratedChildren };
+            }
+            if (typeof category.id !== 'number') {
+                return { ...category, children: [] };
+            }
+            const res = await fetch(`${BASE_URL}/category/${category.id}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    authorization: `Bearer ${token}`
+                },
+                method: 'GET',
+            });
+            if (res.status === 401) {
+                refreshToken();
+                return { ...category, children: [] };
+            }
+            if (!res.ok) {
+                return { ...category, children: [] };
+            }
+            const fullCategory: Category = await res.json();
+            const children = Array.isArray(fullCategory.children) ? fullCategory.children : [];
+            const hydratedChildren = await Promise.all(children.map(hydrateCategory));
+            return { ...category, ...fullCategory, children: hydratedChildren };
+        };
+
+        return Promise.all(root.children.map(hydrateCategory));
+    }
+
     const createCategory = async (category: CategoryBody) => {
         const res = await fetch(`${BASE_URL}/category`, {
             headers: {
@@ -315,6 +350,7 @@ export function useApi() {
         updateTransaction,
         deleteTransaction,
         getAllCategories,
+        getCategoryTree,
         getTemplates,
         getTemplateById,
         createTemplateTransaction,
