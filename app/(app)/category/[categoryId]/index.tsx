@@ -128,8 +128,8 @@ const CategoryScreen = () => {
                         <FontAwesome6 name="sack-dollar" size={FONT_SIZE_LARGE} color={category.total > 0 ? theme.colors.positive_text : theme.colors.negative_text} />
                         <Text style={styles.header_title_text}>{category.name}</Text>
                     </View>
-                    {category?.total &&
-                        <Text numberOfLines={1} style={[styles.header_value, { color: category.total > 0 ? theme.colors.positive_text : theme.colors.negative_text }]}>{(category.name + category.total).length > 20 && '\n'}{category.total.toFixed(2)} {CURRENCY_SYMBOL}</Text>
+                    {category?.total != null &&
+                        <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.header_value, { color: category.total > 0 ? theme.colors.positive_text : theme.colors.negative_text }]}>{category.total.toFixed(2)} {CURRENCY_SYMBOL}</Text>
                     }
                 </TouchableOpacity>
             </View>
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
         color: theme.colors.primary_text,
         fontSize: FONT_SIZE_LARGE,
         fontWeight: 'bold',
-        textAlign: 'center'
+        flexShrink: 1,
     },
     header_value: {
         fontSize: FONT_SIZE_XLARGE,

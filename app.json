@@ -62,6 +62,12 @@
         "projectId": "5f25359d-cf9e-42e7-a612-77b378cbe599"
       }
     },
-    "owner": "nneu"
+    "owner": "nneu",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5f25359d-cf9e-42e7-a612-77b378cbe599"
+    }
   }
 }
